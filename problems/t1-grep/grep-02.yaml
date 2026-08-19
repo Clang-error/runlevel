@@ -1,0 +1,36 @@
+id: grep-02
+category: grep
+level: 3
+prompt: |
+  /work/access.log 에서 4xx 응답(상태코드가 4로 시작하는 세 자리)만 골라
+  /work/errors.log 에 저장하라.
+
+  로그의 마지막 칸이 상태코드다.
+
+setup:
+  cwd: /work
+  files:
+    /work/access.log: |
+      10.0.0.1 GET /index 200
+      10.0.0.2 GET /admin 403
+      10.0.0.3 GET /none 404
+      10.0.0.4 POST /api 500
+      10.0.0.5 GET /ok 204
+      10.0.0.6 GET /bad 400
+
+check:
+  - desc: errors.log 가 존재함
+    cmd: test -s /work/errors.log
+  - desc: 3줄임
+    cmd: '[ "$(wc -l < /work/errors.log)" = 3 ]'
+  - desc: 403 404 400 이 들어있음
+    cmd: grep -q 403 /work/errors.log && grep -q 404 /work/errors.log && grep -q 400 /work/errors.log
+  - desc: 200 500 204 는 없음
+    cmd: '[ -s /work/errors.log ] && ! grep -qE "(200|500|204)$" /work/errors.log'
+
+hints:
+  - 확장 정규식은 grep -E 를 쓴다.
+  - 줄 끝은 $ 로 고정한다. 숫자 한 자리는 [0-9] 다.
+  - 4 로 시작하는 세 자리는 4[0-9][0-9] 다.
+
+solution: grep -E '4[0-9][0-9]$' /work/access.log > /work/errors.log

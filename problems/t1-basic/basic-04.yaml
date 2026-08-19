@@ -1,0 +1,34 @@
+id: basic-04
+category: 기본 탐색
+level: 1
+prompt: |
+  /work/files 안에 파일 4개가 있다. 크기가 제각각이다.
+  그중 가장 큰 파일 하나만 /work/biggest 디렉터리로 옮겨라.
+
+  파일을 열어보지 말고 목록에서 크기를 읽어 판단한다.
+
+setup:
+  cwd: /work
+  script: |
+    mkdir -p /work/files /work/biggest
+    head -c 120  /dev/zero > /work/files/notes.txt
+    head -c 4000 /dev/zero > /work/files/photo.raw
+    head -c 300  /dev/zero > /work/files/config.ini
+    head -c 800  /dev/zero > /work/files/list.csv
+
+check:
+  - desc: 가장 큰 파일이 biggest 안에 있음
+    cmd: test -f /work/biggest/photo.raw
+  - desc: biggest 안에는 그 파일 하나뿐임
+    cmd: '[ "$(ls -A /work/biggest | wc -l)" = 1 ]'
+  - desc: 나머지 3개는 files 에 그대로 있음
+    cmd: '[ "$(ls -A /work/files | wc -l)" = 3 ]'
+
+hints:
+  - ls -l 로 보면 다섯 번째 칸이 파일 크기(바이트)다.
+  - ls -S 는 큰 것부터 정렬해서 보여준다. -l 과 같이 써도 된다.
+  - 'ls -lS /work/files 로 맨 위에 오는 파일을 mv 로 옮긴다.'
+
+solution: |
+  ls -lS /work/files
+  mv /work/files/photo.raw /work/biggest/

@@ -1,0 +1,36 @@
+id: arch-03
+category: 압축과 링크
+level: 2
+prompt: |
+  /work/releases 아래에 v1 과 v2 두 버전이 있다.
+  지금 쓰는 버전을 가리키는 /work/current 라는 심볼릭 링크를 만들어라.
+  지금은 v2 를 가리켜야 한다.
+
+  링크가 제대로 걸리면 /work/current/app.txt 를 읽었을 때 v2 의 내용이 나온다.
+
+setup:
+  cwd: /work
+  script: |
+    mkdir -p /work/releases/v1 /work/releases/v2
+    echo 'version 1' > /work/releases/v1/app.txt
+    echo 'version 2' > /work/releases/v2/app.txt
+
+check:
+  - desc: current 가 심볼릭 링크임
+    cmd: test -L /work/current
+  - desc: current 가 releases/v2 를 가리킴
+    cmd: '[ "$(readlink -f /work/current)" = /work/releases/v2 ]'
+  - desc: current/app.txt 를 읽으면 v2 의 내용이 나옴
+    cmd: '[ "$(cat /work/current/app.txt)" = "version 2" ]'
+
+guard:
+  - desc: 원본 v1, v2 는 그대로임
+    cmd: test -f /work/releases/v1/app.txt && test -f /work/releases/v2/app.txt
+
+hints:
+  - 링크를 만드는 명령은 ln 이다. 심볼릭 링크는 -s 를 붙인다.
+  - 'ln -s 대상 링크이름 순서다. 가리킬 곳을 먼저, 만들 이름을 나중에 적는다.'
+  - 'ln -s /work/releases/v2 /work/current'
+
+solution: |
+  ln -s /work/releases/v2 /work/current

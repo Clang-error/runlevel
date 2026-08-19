@@ -1,0 +1,31 @@
+id: text-04
+category: 텍스트 처리
+level: 2
+prompt: |
+  /work/access.log 에서 서로 다른 IP 주소가 몇 개인지 세어
+  그 숫자만 /work/count.txt 에 저장하라.
+
+  로그의 첫 번째 칸이 IP 주소다.
+
+setup:
+  cwd: /work
+  files:
+    /work/access.log: |
+      10.0.0.1 GET /
+      10.0.0.2 GET /login
+      10.0.0.1 POST /login
+      10.0.0.3 GET /
+      10.0.0.2 GET /logout
+
+check:
+  - desc: count.txt 가 존재함
+    cmd: test -f /work/count.txt
+  - desc: 값이 3 임
+    cmd: '[ "$(tr -d "[:space:]" < /work/count.txt)" = 3 ]'
+
+hints:
+  - 특정 칸만 뽑으려면 cut -d' ' -f1 또는 awk '{print $1}' 를 쓴다.
+  - uniq 는 인접한 중복만 지운다. 먼저 sort 해야 한다.
+  - 줄 수를 세는 명령은 wc -l 이다.
+
+solution: awk '{print $1}' /work/access.log | sort -u | wc -l > /work/count.txt

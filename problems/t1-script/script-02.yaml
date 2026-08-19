@@ -1,0 +1,42 @@
+id: script-02
+category: 셸 스크립트
+level: 3
+prompt: |
+  /work/greet.sh 스크립트를 만들어라.
+
+  - 인자를 주면      "Hello, 이름" 을 출력하고 정상 종료(0)
+  - 인자가 없으면    "usage: greet.sh NAME" 을 출력하고 오류 종료(1)
+
+  예)  ./greet.sh hana   ->   Hello, hana
+
+setup:
+  cwd: /work
+  user: student
+
+check:
+  - desc: greet.sh 가 실행 가능함
+    cmd: test -x /work/greet.sh
+  - desc: 이름을 주면 인사함
+    cmd: '[ "$(/work/greet.sh hana 2>/dev/null)" = "Hello, hana" ]'
+  - desc: 다른 이름에도 맞게 동작함
+    cmd: '[ "$(/work/greet.sh minu 2>/dev/null)" = "Hello, minu" ]'
+  - desc: 인자가 없으면 usage 를 냄
+    cmd: /work/greet.sh 2>&1 | grep -q usage
+  - desc: 인자가 없으면 종료 코드가 1 임
+    cmd: '/work/greet.sh >/dev/null 2>&1; [ "$?" = 1 ]'
+
+hints:
+  - 인자 개수는 $# 에 들어 있다.
+  - 조건문은 if [ "$#" -eq 0 ]; then ... fi 형태다.
+  - 종료 코드를 정하려면 exit 1 을 쓴다.
+
+solution: |
+  cat > /work/greet.sh <<'SH'
+  #!/bin/bash
+  if [ "$#" -eq 0 ]; then
+      echo "usage: greet.sh NAME"
+      exit 1
+  fi
+  echo "Hello, $1"
+  SH
+  chmod +x /work/greet.sh

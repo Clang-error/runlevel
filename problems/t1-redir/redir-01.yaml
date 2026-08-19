@@ -1,0 +1,28 @@
+id: redir-01
+category: 리다이렉션
+level: 1
+prompt: |
+  명령의 결과는 보통 화면에 나오지만, > 를 쓰면 파일로 보낼 수 있다.
+
+  1. 지금 로그인한 계정 이름을 /work/who.txt 에 저장하라
+  2. 지금 있는 디렉터리의 전체 경로를 /work/where.txt 에 저장하라
+
+  직접 타자로 적지 말고, 명령의 출력을 그대로 보내야 한다.
+
+setup:
+  cwd: /work
+
+check:
+  - desc: who.txt 에 계정 이름이 들어 있음
+    cmd: '[ "$(cat /work/who.txt 2>/dev/null)" = student ]'
+  - desc: where.txt 에 현재 경로가 들어 있음
+    cmd: '[ "$(cat /work/where.txt 2>/dev/null)" = /work ]'
+
+hints:
+  - 계정 이름은 whoami, 현재 경로는 pwd 로 알 수 있다.
+  - '명령 > 파일 형태로 쓰면 화면 대신 파일에 담긴다. 파일이 없으면 새로 만들어진다.'
+  - 'whoami > /work/who.txt 처럼 쓴다.'
+
+solution: |
+  whoami > /work/who.txt
+  pwd > /work/where.txt

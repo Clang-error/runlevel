@@ -1,0 +1,26 @@
+id: perm-02
+category: 권한
+level: 3
+prompt: |
+  (관리자 작업) /work/shared 디렉터리를 여러 사용자가 함께 쓰도록 설정하라.
+  누구나 파일을 만들 수 있지만, 남의 파일은 지울 수 없어야 한다.
+  (/tmp 와 같은 방식)
+
+setup:
+  cwd: /work
+  script: |
+    mkdir -p /work/shared
+    chmod 755 /work/shared
+
+check:
+  - desc: 권한이 1777 임 (sticky bit + 전체 rwx)
+    cmd: '[ "$(stat -c %a /work/shared)" = 1777 ]'
+  - desc: sticky bit 가 붙어 있음
+    cmd: test -k /work/shared
+
+hints:
+  - /tmp 의 권한을 ls -ld /tmp 로 확인해보라.
+  - 마지막 t 는 sticky bit 다. 자기 파일만 지울 수 있게 한다.
+  - chmod 에서 sticky bit 는 앞자리 1 이다.
+
+solution: chmod 1777 /work/shared

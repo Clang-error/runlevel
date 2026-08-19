@@ -1,0 +1,38 @@
+id: arch-01
+category: 압축과 링크
+level: 2
+prompt: |
+  /work/site 디렉터리를 통째로 하나의 압축 파일로 묶어라.
+  결과는 /work/site.tar.gz 로 만든다.
+
+  묶기만 하지 말고 압축까지 해야 한다.
+
+setup:
+  cwd: /work
+  script: |
+    mkdir -p /work/site/css
+    echo '<h1>hello</h1>' > /work/site/index.html
+    echo 'body { margin: 0 }' > /work/site/css/main.css
+    echo 'ok' > /work/site/about.html
+
+check:
+  - desc: site.tar.gz 파일이 생성되었음
+    cmd: test -s /work/site.tar.gz
+  - desc: gzip 으로 압축된 tar 묶음임
+    cmd: tar -tzf /work/site.tar.gz > /dev/null 2>&1
+  - desc: 묶음 안에 site 디렉터리의 파일이 들어 있음
+    cmd: tar -tzf /work/site.tar.gz 2>/dev/null | grep -q "site/index.html"
+  - desc: 하위 디렉터리(css)까지 함께 들어 있음
+    cmd: tar -tzf /work/site.tar.gz 2>/dev/null | grep -q "site/css/main.css"
+
+guard:
+  - desc: 원본 site 디렉터리는 그대로 남아 있음
+    cmd: test -f /work/site/index.html
+
+hints:
+  - 여러 파일을 하나로 묶는 명령은 tar 다. 압축은 gzip 이 맡는다.
+  - 'tar 의 옵션 세 개를 기억하면 된다. c 는 만들기(create), z 는 gzip 압축, f 는 파일 이름 지정이다.'
+  - 'tar -czf /work/site.tar.gz -C /work site 처럼 쓴다. -C 는 그 디렉터리로 들어가서 묶으라는 뜻이다.'
+
+solution: |
+  tar -czf /work/site.tar.gz -C /work site

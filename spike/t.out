@@ -1,0 +1,38 @@
+문제 33개, 부팅 중...
+부팅 완료 (7.7s)
+
+  ....  file-01  PASS  file-01  (목표 3 + 전제 1, 2.9s)
+  ....  text-01  PASS  text-01  (목표 2 + 전제 0, 1.7s)
+  ....  text-02  PASS  text-02  (목표 3 + 전제 0, 3.4s)
+  ....  file-02  PASS  file-02  (목표 1 + 전제 1, 2.9s)
+  ....  find-01  PASS  find-01  (목표 3 + 전제 0, 3.8s)
+  ....  grep-01  PASS  grep-01  (목표 3 + 전제 0, 3.7s)
+  ....  perm-01  PASS  perm-01  (목표 2 + 전제 0, 4.0s)
+  ....  pipe-01  PASS  pipe-01  (목표 2 + 전제 0, 3.1s)
+  ....  text-03  PASS  text-03  (목표 3 + 전제 0, 3.4s)
+  ....  text-04  PASS  text-04  (목표 2 + 전제 0, 2.6s)
+  ....  text-06  PASS  text-06  (목표 2 + 전제 1, 3.9s)
+  ....  disk-01  PASS  disk-01  (목표 4 + 전제 0, 6.1s)
+  ....  find-02  PASS  find-02  (목표 3 + 전제 0, 2.8s)
+  ....  find-03  PASS  find-03  (목표 1 + 전제 2, 4.5s)
+  ....  grep-02  PASS  grep-02  (목표 4 + 전제 0, 4.3s)
+  ....  grep-03  PASS  grep-03  (목표 4 + 전제 0, 3.6s)
+  ....  perm-02  PASS  perm-02  (목표 2 + 전제 0, 2.5s)
+  ....  perm-03  PASS  perm-03  (목표 2 + 전제 0, 3.8s)
+  ....  pipe-02  PASS  pipe-02  (목표 3 + 전제 0, 3.3s)
+  ....  script-01  PASS  script-01  (목표 3 + 전제 0, 4.8s)
+  ....  script-02  PASS  script-02  (목표 5 + 전제 0, 3.9s)
+  ....  sudo-01  PASS  sudo-01  (목표 2 + 전제 1, 3.3s)
+  ....  text-05  PASS  text-05  (목표 2 + 전제 0, 2.6s)
+  ....  disk-02  PASS  disk-02  (목표 4 + 전제 0, 6.1s)
+  ....  disk-03  PASS  disk-03  (목표 3 + 전제 0, 4.6s)
+  ....  perm-04  PASS  perm-04  (목표 2 + 전제 1, 5.1s)
+  ....  perm-05  PASS  perm-05  (목표 2 + 전제 0, 3.2s)
+  ....  pipe-03  PASS  pipe-03  (목표 4 + 전제 0, 4.3s)
+  ....  script-03  PASS  script-03  (목표 3 + 전제 0, 5.1s)
+  ....  script-04  PASS  script-04  (목표 4 + 전제 0, 6.5s)
+  ....  sudo-02  PASS  sudo-02  (목표 1 + 전제 1, 5.0s)
+  ....  sudo-03  PASS  sudo-03  (목표 4 + 전제 0, 4.2s)
+  ....  sudo-04  PASS  sudo-04  (목표 2 + 전제 1, 4.6s)
+
+33 통과 / 0 실패 / 0 건너뜀

@@ -1,0 +1,40 @@
+id: text-07
+category: 텍스트 처리
+level: 1
+prompt: |
+  /work/boot.log 의 맨 앞 3줄만 /work/head3.txt 로,
+  맨 뒤 2줄만 /work/tail2.txt 로 저장하라.
+
+setup:
+  cwd: /work
+  files:
+    /work/boot.log: |
+      01 boot
+      02 mount
+      03 network
+      04 service
+      05 login
+      06 shutdown
+
+check:
+  - desc: head3.txt 가 3줄임
+    cmd: '[ "$(wc -l < /work/head3.txt)" = 3 ]'
+  - desc: head3.txt 가 맨 앞 3줄(03 network 까지)임
+    cmd: '[ -s /work/head3.txt ] && grep -q "^03 network$" /work/head3.txt && ! grep -q "^04 service$" /work/head3.txt'
+  - desc: tail2.txt 가 2줄임
+    cmd: '[ "$(wc -l < /work/tail2.txt)" = 2 ]'
+  - desc: tail2.txt 가 맨 뒤 2줄(05 login 부터)임
+    cmd: '[ -s /work/tail2.txt ] && grep -q "^06 shutdown$" /work/tail2.txt && ! grep -q "^04 service$" /work/tail2.txt'
+
+guard:
+  - desc: 원본 boot.log 는 6줄 그대로임
+    cmd: '[ "$(wc -l < /work/boot.log)" = 6 ]'
+
+hints:
+  - 파일의 앞부분만 보는 명령과 뒷부분만 보는 명령이 따로 있다.
+  - 몇 줄을 볼지는 -n 옵션으로 정한다. 숫자만 붙여 써도 된다.
+  - '앞 3줄은 head -3 파일, 뒤 2줄은 tail -2 파일. 결과는 > 로 파일에 보낸다.'
+
+solution: |
+  head -3 /work/boot.log > /work/head3.txt
+  tail -2 /work/boot.log > /work/tail2.txt

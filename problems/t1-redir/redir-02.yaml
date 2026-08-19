@@ -1,0 +1,40 @@
+id: redir-02
+category: 리다이렉션
+level: 1
+prompt: |
+  /work/log.txt 에는 예전 내용이 4줄 들어 있다.
+  이 파일을 아래 3줄짜리로 만들어라.
+
+    start
+    middle
+    end
+
+  단 한 번에 쓰지 말고 세 번에 나눠서 한다.
+  첫 줄을 쓸 때 예전 내용이 사라져야 하고, 나머지 두 줄은 뒤에 붙어야 한다.
+
+setup:
+  cwd: /work
+  files:
+    /work/log.txt: |
+      old line 1
+      old line 2
+      old line 3
+      old line 4
+
+check:
+  - desc: log.txt 가 3줄임
+    cmd: '[ "$(wc -l < /work/log.txt)" = 3 ]'
+  - desc: 예전 내용이 남아있지 않음
+    cmd: '[ -s /work/log.txt ] && ! grep -q "^old" /work/log.txt'
+  - desc: 순서가 start, middle, end 임
+    cmd: '[ "$(head -1 /work/log.txt)" = start ] && [ "$(sed -n 2p /work/log.txt)" = middle ] && [ "$(tail -1 /work/log.txt)" = end ]'
+
+hints:
+  - 화면에 글자를 내보내는 명령은 echo 다.
+  - '> 는 파일을 통째로 새로 쓴다. 원래 내용은 사라진다.'
+  - '>> 는 파일 끝에 이어 붙인다. 첫 줄만 > 로, 나머지는 >> 로 쓴다.'
+
+solution: |
+  echo start > /work/log.txt
+  echo middle >> /work/log.txt
+  echo end >> /work/log.txt

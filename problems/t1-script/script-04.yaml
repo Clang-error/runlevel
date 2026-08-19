@@ -1,0 +1,55 @@
+id: script-04
+category: 셸 스크립트
+level: 4
+prompt: |
+  /work/backup.sh 스크립트를 만들어라.
+
+  ./backup.sh 원본디렉터리 대상디렉터리
+
+  - 대상 디렉터리가 없으면 만든다
+  - 원본 안의 .txt 파일만 대상으로 복사한다
+  - 원본 디렉터리가 없으면 오류 메시지를 내고 종료 코드 1 로 끝난다
+
+setup:
+  # setup 이 소유자를 일부러 지정한다. 자동 chown 이 그걸 덮으면 문제가 성립하지 않는다
+  keepOwner: true
+  cwd: /work
+  user: student
+  script: |
+    mkdir -p /work/src
+    echo one > /work/src/a.txt
+    echo two > /work/src/b.txt
+    echo skip > /work/src/c.log
+    chown -R student /work/src
+
+check:
+  - desc: backup.sh 가 실행 가능함
+    cmd: test -x /work/backup.sh
+  - desc: 대상 디렉터리를 만들고 .txt 만 복사함
+    cmd: >-
+      rm -rf /tmp/bk1 && /work/backup.sh /work/src /tmp/bk1 >/dev/null 2>&1
+      && [ "$(ls /tmp/bk1 | wc -l)" = 2 ] && [ -f /tmp/bk1/a.txt ] && [ ! -f /tmp/bk1/c.log ]
+  - desc: 내용까지 제대로 복사됨
+    cmd: >-
+      rm -rf /tmp/bk2 && /work/backup.sh /work/src /tmp/bk2 >/dev/null 2>&1
+      && cmp -s /work/src/a.txt /tmp/bk2/a.txt
+  - desc: 없는 원본을 주면 종료 코드 1 임
+    cmd: '/work/backup.sh /work/nope /tmp/bk3 >/dev/null 2>&1; [ "$?" = 1 ]'
+
+hints:
+  - 디렉터리 존재 확인은 [ -d "$1" ] 이다.
+  - 없으면 만들기는 mkdir -p "$2" 로 한 줄이면 된다.
+  - .txt 만 복사하려면 cp "$1"/*.txt "$2"/ 를 쓴다.
+  - 오류 메시지는 화면에, 종료는 exit 1 로 한다.
+
+solution: |
+  cat > /work/backup.sh <<'SH'
+  #!/bin/bash
+  if [ ! -d "$1" ]; then
+      echo "no such directory: $1"
+      exit 1
+  fi
+  mkdir -p "$2"
+  cp "$1"/*.txt "$2"/
+  SH
+  chmod +x /work/backup.sh

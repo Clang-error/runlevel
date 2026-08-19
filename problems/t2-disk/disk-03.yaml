@@ -1,0 +1,34 @@
+id: disk-03
+category: 마운트
+level: 4
+prompt: |
+  /dev/sdb 를 ext4 로 포맷해 /backup 에 읽기 전용(read-only)으로 마운트하라.
+
+  마운트한 뒤에는 파일을 쓸 수 없어야 한다.
+
+setup:
+  # 포맷·마운트는 관리자 일이지만, 실제로는 sudo 로 한다
+  sudo: true
+  cwd: /work
+  disks:
+    - dev: /dev/sdb
+      size: 64M
+  script: |
+    mkdir -p /backup
+
+check:
+  - desc: /backup 이 마운트되어 있음
+    cmd: mountpoint -q /backup
+  - desc: 파일시스템이 ext4 임
+    cmd: '[ "$(findmnt -no FSTYPE /backup)" = ext4 ]'
+  - desc: 읽기 전용임
+    cmd: findmnt -no OPTIONS /backup | grep -qE '(^|,)ro(,|$)'
+
+hints:
+  - 마운트 옵션은 mount -o 로 준다.
+  - 읽기 전용 옵션은 ro 다.
+  - 이미 마운트한 걸 바꾸려면 mount -o remount,ro 를 쓴다.
+
+solution: |
+  sudo mkfs.ext4 -F /dev/sdb
+  sudo mount -o ro /dev/sdb /backup

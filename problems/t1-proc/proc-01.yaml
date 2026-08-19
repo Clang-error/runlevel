@@ -1,0 +1,31 @@
+id: proc-01
+category: 프로세스
+level: 2
+prompt: |
+  /work/hang.sh 라는 스크립트가 백그라운드에서 돌고 있다.
+
+  그 프로세스의 PID 를 찾아 /work/pid.txt 에 저장하라. 숫자만 적는다.
+
+setup:
+  cwd: /work
+  script: |
+    printf '#!/bin/bash\nwhile :; do sleep 5; done\n' > /work/hang.sh
+    chmod +x /work/hang.sh
+    setsid /work/hang.sh >/dev/null 2>&1 &
+    sleep 1
+
+check:
+  - desc: pid.txt 가 존재함
+    cmd: test -s /work/pid.txt
+  - desc: 적힌 PID 가 실제로 hang.sh 임
+    cmd: >-
+      p=$(tr -dc 0-9 < /work/pid.txt) && [ -n "$p" ] &&
+      grep -q hang.sh /proc/$p/cmdline 2>/dev/null
+
+hints:
+  - 실행 중인 프로세스는 ps 로 본다. ps -ef 또는 ps aux.
+  - 이름으로 거르려면 grep hang.sh 를 쓴다. grep 자신도 잡히니 주의.
+  - PID 는 보통 첫 번째 칸이다. awk '{print $1}'
+
+solution: |
+  ps -o pid,args | grep '[h]ang.sh' | awk '{print $1}' > /work/pid.txt

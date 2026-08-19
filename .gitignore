@@ -1,0 +1,29 @@
+# ── 큰 바이너리 ────────────────────────────────────────────────────
+#
+# 게스트 디스크 이미지와 스냅샷은 합쳐서 3GB 가 넘는다. 넣으면 안 되는 이유가
+# 용량만은 아니다 — 이미지를 다시 만들 때마다 이력에 통짜 사본이 하나씩 더 쌓여서,
+# 나중에 지워도 저장소는 계속 그 크기를 들고 다닌다.
+#
+# 잃어버려도 되살릴 수 있다. 배포본이 그대로 갖고 있다:
+#     curl -O https://runlevel.cc/img/state.bin.zst
+#     curl -O https://runlevel.cc/img/dotslash-64.img.gz
+# 처음부터 만들려면 spike/alpine-build.mjs → add-packages.mjs →
+# finalize-image.mjs → make-snapshot.mjs 순서다 (docs/spike-results.md 참고).
+spike/images/
+spike/backup-presh/
+web/img/
+web/dist/
+
+# ── 만들어지는 것 ──────────────────────────────────────────────────
+node_modules/
+web/result.json
+web/progress.log
+web/shots/            # shots.mjs 가 다시 찍는다. og.png 는 배포에 쓰므로 web/og.png 로 따로 둔다
+spike/serial*.log     # 게스트 부팅·검증 중에 쌓이는 시리얼 로그
+
+# ── 로컬 상태 ──────────────────────────────────────────────────────
+api/.wrangler/
+api/.reports-seen     # reports.mjs 가 "어디까지 봤는지" 기억하는 자리. 사람마다 다르다
+
+# ── 잡동사니 ───────────────────────────────────────────────────────
+.DS_Store

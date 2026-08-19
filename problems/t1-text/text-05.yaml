@@ -1,0 +1,28 @@
+id: text-05
+category: 텍스트 처리
+level: 3
+prompt: |
+  /work/sales.csv 에서 금액(3번째 칸) 합계를 구해
+  /work/total.txt 에 저장하라. 헤더 줄은 제외한다.
+
+setup:
+  cwd: /work
+  files:
+    /work/sales.csv: |
+      date,item,amount
+      2026-01-01,apple,1200
+      2026-01-02,banana,800
+      2026-01-03,cherry,3000
+
+check:
+  - desc: total.txt 가 존재함
+    cmd: test -f /work/total.txt
+  - desc: 합계가 5000 임
+    cmd: '[ "$(tr -dc "0-9" < /work/total.txt)" = 5000 ]'
+
+hints:
+  - 쉼표로 나뉜 칸은 awk -F, 로 다룬다.
+  - 헤더를 건너뛰려면 NR>1 조건을 쓴다.
+  - awk 에서 합계는 END 블록에 모아 출력한다.
+
+solution: awk -F, 'NR>1 {s+=$3} END {print s}' /work/sales.csv > /work/total.txt

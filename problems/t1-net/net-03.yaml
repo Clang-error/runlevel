@@ -1,0 +1,28 @@
+id: net-03
+category: 네트워크
+level: 3
+prompt: |
+  이 서버에서 열려 있는(LISTEN 중인) TCP 포트 번호를 모두 찾아
+  작은 수부터 정렬해 /work/ports.txt 에 저장하라. 번호만 적는다.
+
+setup:
+  cwd: /work
+  script: |
+    netlab reset
+    netlab add 10.0.0.7 srv01 22 80 8080
+
+check:
+  - desc: ports.txt 가 존재함
+    cmd: test -s /work/ports.txt
+  - desc: 3개임
+    cmd: '[ "$(wc -l < /work/ports.txt)" = 3 ]'
+  - desc: 22 80 8080 순서로 정렬돼 있음
+    cmd: '[ "$(tr "\n" " " < /work/ports.txt)" = "22 80 8080 " ]'
+
+hints:
+  - 듣고 있는 TCP 포트는 netstat -tln 으로 본다.
+  - '주소 부분이 "10.0.0.7:80" 형태라 : 뒤를 잘라야 한다.'
+  - 숫자 정렬은 sort -n 이다.
+
+solution: |
+  netstat -tln | awk '/LISTEN/ {split($4, a, ":"); print a[length(a)]}' | sort -n > /work/ports.txt

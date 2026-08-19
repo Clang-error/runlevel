@@ -1,0 +1,30 @@
+id: perm-01
+category: 권한
+level: 2
+prompt: |
+  /work/deploy.sh 를 실행하려 하면 Permission denied 가 난다.
+  소유자만 실행할 수 있게 권한을 고쳐라.
+  (소유자 rwx, 그룹과 기타 사용자는 읽기만)
+
+setup:
+  cwd: /work
+  user: student
+  files:
+    /work/deploy.sh: |
+      #!/bin/bash
+      echo deploying
+  script: |
+    chmod 644 /work/deploy.sh
+
+check:
+  - desc: 권한이 744 임
+    cmd: '[ "$(stat -c %a /work/deploy.sh)" = 744 ]'
+  - desc: 실제로 실행됨
+    cmd: su -s /bin/bash student -c '/work/deploy.sh' 2>/dev/null | grep -q deploying
+
+hints:
+  - ls -l 로 현재 권한을 먼저 확인하라.
+  - chmod 는 8진수로 권한을 준다. r=4, w=2, x=1 이다.
+  - 소유자 rwx = 7, 읽기만 = 4.
+
+solution: chmod 744 /work/deploy.sh

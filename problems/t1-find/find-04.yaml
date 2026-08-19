@@ -1,0 +1,35 @@
+id: find-04
+category: find
+level: 1
+prompt: |
+  /work/docs 안에서 확장자가 .txt 인 파일을 찾아
+  경로 목록을 /work/found.txt 에 저장하라.
+
+  /work 에는 docs 밖에도 .txt 파일이 있다. docs 안만 찾아야 한다.
+
+setup:
+  cwd: /work
+  script: |
+    mkdir -p /work/docs
+    touch /work/docs/plan.txt /work/docs/memo.txt
+    touch /work/docs/readme.md
+    touch /work/outside.txt
+
+check:
+  - desc: found.txt 가 존재함
+    cmd: test -s /work/found.txt
+  - desc: 2줄임
+    cmd: '[ "$(wc -l < /work/found.txt)" = 2 ]'
+  - desc: plan.txt 와 memo.txt 가 들어있음
+    cmd: grep -q 'plan\.txt' /work/found.txt && grep -q 'memo\.txt' /work/found.txt
+  - desc: .txt 가 아닌 readme.md 는 들어있지 않음
+    cmd: '[ -s /work/found.txt ] && ! grep -q readme /work/found.txt'
+  - desc: docs 바깥의 outside.txt 는 들어있지 않음
+    cmd: '[ -s /work/found.txt ] && ! grep -q outside /work/found.txt'
+
+hints:
+  - 파일을 이름으로 찾는 명령은 find 다. 찾을 위치를 먼저 적는다.
+  - 이름 조건은 -name 뒤에 쓴다. 와일드카드는 따옴표로 감싼다. -name "*.txt"
+  - find /work/docs -name "*.txt" 의 결과를 > 로 파일에 저장하면 된다.
+
+solution: find /work/docs -name "*.txt" > /work/found.txt

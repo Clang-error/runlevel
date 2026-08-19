@@ -1,0 +1,47 @@
+id: awk-05
+category: awk 와 sed
+level: 3
+prompt: |
+  sed 도 awk 처럼 자기만의 짧은 문법을 인자로 받는다.
+  /work/app.conf 를 가지고 세 가지를 만들어라. 원본은 그대로 둔다.
+
+  1. 주석 줄(# 으로 시작)을 지운 것 → /work/nocomment.conf
+  2. 모든 8080 을 80 으로 바꾼 것 → /work/port80.conf
+  3. 3번째 줄부터 5번째 줄까지만 뽑은 것 → /work/mid.conf
+
+setup:
+  cwd: /work
+  files:
+    /work/app.conf: |
+      # 서버 설정
+      host=localhost
+      port=8080
+      # 관리자 포트
+      admin_port=8080
+      debug=false
+
+check:
+  - desc: nocomment.conf 에 주석 줄이 없음
+    cmd: '[ -s /work/nocomment.conf ] && ! grep -q "^#" /work/nocomment.conf'
+  - desc: nocomment.conf 가 4줄임 (주석 2줄 제거)
+    cmd: '[ "$(wc -l < /work/nocomment.conf)" = 4 ]'
+  - desc: port80.conf 에서 8080 이 모두 80 으로 바뀜
+    cmd: '[ -s /work/port80.conf ] && ! grep -q "8080" /work/port80.conf && grep -q "^port=80$" /work/port80.conf && grep -q "^admin_port=80$" /work/port80.conf'
+  - desc: mid.conf 가 3줄임
+    cmd: '[ "$(wc -l < /work/mid.conf)" = 3 ]'
+  - desc: mid.conf 가 3~5번째 줄임
+    cmd: '[ "$(head -1 /work/mid.conf)" = "port=8080" ] && [ "$(tail -1 /work/mid.conf)" = "admin_port=8080" ]'
+
+guard:
+  - desc: 원본 app.conf 는 6줄 그대로임
+    cmd: '[ "$(wc -l < /work/app.conf)" = 6 ]'
+
+hints:
+  - 'sed 는 /패턴/ 뒤에 명령 글자 하나를 붙인다. d 는 지우기다. ^ 는 줄의 시작을 뜻한다.'
+  - 's/바꿀것/새것/ 은 치환이다. 끝에 g 를 붙이면 한 줄 안에서 모두 바꾼다.'
+  - '-n 은 자동 출력을 끈다. sed -n ''3,5p'' 는 3~5번째 줄만 출력한다.'
+
+solution: |
+  sed '/^#/d' /work/app.conf > /work/nocomment.conf
+  sed 's/8080/80/g' /work/app.conf > /work/port80.conf
+  sed -n '3,5p' /work/app.conf > /work/mid.conf

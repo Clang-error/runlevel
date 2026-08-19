@@ -1,0 +1,38 @@
+id: pipe-03
+category: 파이프라인
+level: 4
+prompt: |
+  /work/app.log 에서 ERROR 가 난 시간대(시)별 발생 횟수를 세어
+  /work/hourly.txt 에 "시각 횟수" 형식으로 저장하라.
+
+  로그 형식은 "HH:MM:SS LEVEL 메시지" 다. 시각은 앞 2자리만 쓴다.
+  예: 09 3
+
+setup:
+  cwd: /work
+  files:
+    /work/app.log: |
+      09:01:00 ERROR disk full
+      09:15:22 INFO ok
+      09:41:10 ERROR timeout
+      10:02:31 ERROR refused
+      10:11:00 INFO ok
+      11:30:00 ERROR crash
+      09:55:00 ERROR retry
+
+check:
+  - desc: hourly.txt 가 존재함
+    cmd: test -s /work/hourly.txt
+  - desc: 3줄임
+    cmd: '[ "$(wc -l < /work/hourly.txt)" = 3 ]'
+  - desc: 09시가 3회임
+    cmd: grep -qE '^09[[:space:]]+3$' /work/hourly.txt
+  - desc: 10시가 1회, 11시가 1회임
+    cmd: grep -qE '^10[[:space:]]+1$' /work/hourly.txt && grep -qE '^11[[:space:]]+1$' /work/hourly.txt
+
+hints:
+  - 먼저 grep 으로 ERROR 줄만 남긴다.
+  - 시각 앞 2자리는 cut -c1-2 로 자를 수 있다.
+  - sort | uniq -c 로 세면 "횟수 시각" 순서라 awk 로 뒤집어야 한다.
+
+solution: grep ERROR /work/app.log | cut -c1-2 | sort | uniq -c | awk '{print $2, $1}' > /work/hourly.txt

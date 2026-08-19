@@ -1,0 +1,40 @@
+id: text-10
+category: 텍스트 처리
+level: 1
+prompt: |
+  /work/extra.txt 의 내용을 /work/todo.txt 의 뒤에 이어붙여라.
+
+  todo.txt 에 원래 있던 줄은 그대로 남아 있어야 한다.
+
+setup:
+  cwd: /work
+  files:
+    /work/todo.txt: |
+      wash dishes
+      walk dog
+    /work/extra.txt: |
+      buy milk
+      call mom
+
+check:
+  - desc: todo.txt 가 4줄로 늘어남
+    cmd: '[ "$(wc -l < /work/todo.txt)" = 4 ]'
+  - desc: todo.txt 에 buy milk 가 있음
+    cmd: grep -q '^buy milk$' /work/todo.txt
+  - desc: todo.txt 에 call mom 이 있음
+    cmd: grep -q '^call mom$' /work/todo.txt
+  - desc: 이어붙인 줄이 뒤쪽에 있음 (마지막 줄이 call mom)
+    cmd: '[ "$(tail -1 /work/todo.txt)" = "call mom" ]'
+
+guard:
+  - desc: 원래 있던 두 줄이 지워지지 않음
+    cmd: grep -q '^wash dishes$' /work/todo.txt && grep -q '^walk dog$' /work/todo.txt
+  - desc: extra.txt 는 2줄 그대로임
+    cmd: '[ "$(wc -l < /work/extra.txt)" = 2 ]'
+
+hints:
+  - 파일 내용을 출력하는 cat 의 결과를 다른 파일로 보내면 된다.
+  - '> 는 파일을 통째로 덮어쓴다. 원래 줄을 남기려면 다른 기호가 필요하다.'
+  - '이어붙이기는 >> 다. cat /work/extra.txt >> /work/todo.txt'
+
+solution: cat /work/extra.txt >> /work/todo.txt

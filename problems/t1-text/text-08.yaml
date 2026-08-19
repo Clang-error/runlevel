@@ -1,0 +1,38 @@
+id: text-08
+category: 텍스트 처리
+level: 1
+prompt: |
+  /work/essay.txt 가 몇 줄이고 몇 단어인지 세어라.
+
+  줄 수는 /work/lines.txt 에, 단어 수는 /work/words.txt 에 저장하라.
+
+setup:
+  cwd: /work
+  files:
+    /work/essay.txt: |
+      the quick brown fox
+      jumps over
+      the lazy dog
+
+check:
+  - desc: lines.txt 가 존재함
+    cmd: test -f /work/lines.txt
+  - desc: lines.txt 에 적힌 줄 수가 3 임
+    cmd: '[ "$(tr -dc "0-9" < /work/lines.txt)" = 3 ]'
+  - desc: words.txt 가 존재함
+    cmd: test -f /work/words.txt
+  - desc: words.txt 에 적힌 단어 수가 9 임
+    cmd: '[ "$(tr -dc "0-9" < /work/words.txt)" = 9 ]'
+
+guard:
+  - desc: 원본 essay.txt 는 그대로임
+    cmd: '[ "$(wc -l < /work/essay.txt)" = 3 ]'
+
+hints:
+  - 줄·단어·글자 수를 한 번에 세어주는 명령이 있다. wc 다.
+  - 옵션 없이 쓰면 세 가지가 한꺼번에 나온다. -l 은 줄, -w 는 단어다.
+  - 'wc -l /work/essay.txt > /work/lines.txt 처럼 결과를 파일로 보낸다.'
+
+solution: |
+  wc -l < /work/essay.txt > /work/lines.txt
+  wc -w < /work/essay.txt > /work/words.txt

@@ -1,0 +1,43 @@
+id: arch-02
+category: 압축과 링크
+level: 2
+prompt: |
+  /work/backup.tar.gz 를 받았다. 안에 무엇이 들었는지 모른다.
+
+  1. 풀기 전에 내용 목록을 확인해서 /work/list.txt 에 저장하라
+  2. /work/restore 디렉터리를 만들고 그 안에 압축을 풀어라
+
+  받은 파일을 아무 데나 풀면 현재 디렉터리가 어질러진다. 반드시 restore 안에 풀어야 한다.
+
+setup:
+  cwd: /work
+  script: |
+    mkdir -p /tmp/mk/conf
+    echo 'port=8080' > /tmp/mk/conf/app.conf
+    echo 'v1.2.0' > /tmp/mk/version.txt
+    tar -czf /work/backup.tar.gz -C /tmp/mk .
+    rm -rf /tmp/mk
+
+check:
+  - desc: list.txt 에 묶음 안의 목록이 저장되었음
+    cmd: '[ -s /work/list.txt ] && grep -q "version.txt" /work/list.txt'
+  - desc: restore 디렉터리가 생성되었음
+    cmd: test -d /work/restore
+  - desc: restore 안에 version.txt 가 풀려 있음
+    cmd: test -f /work/restore/version.txt
+  - desc: 하위 디렉터리 conf 까지 풀려 있음
+    cmd: test -f /work/restore/conf/app.conf
+
+guard:
+  - desc: /work 바깥으로 흘러나오지 않았음
+    cmd: '! test -e /work/version.txt && ! test -e /work/conf'
+
+hints:
+  - 'tar 의 t 는 목록 보기(list), x 는 풀기(extract)다. z 와 f 는 묶을 때와 똑같이 쓴다.'
+  - '목록은 tar -tzf 파일 로 본다. 화면에 나온 것을 > 로 파일에 담으면 된다.'
+  - '풀 때 -C 로 목적지를 정한다: mkdir restore 후 tar -xzf /work/backup.tar.gz -C /work/restore'
+
+solution: |
+  tar -tzf /work/backup.tar.gz > /work/list.txt
+  mkdir /work/restore
+  tar -xzf /work/backup.tar.gz -C /work/restore

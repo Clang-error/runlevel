@@ -1,0 +1,37 @@
+id: pipe-05
+category: 파이프라인
+level: 2
+prompt: |
+  /work/targets.txt 에 옮길 파일 이름이 한 줄에 하나씩 적혀 있다.
+  거기 적힌 파일만 /work/picked 로 옮겨라. 목록에 없는 파일은 그대로 둔다.
+
+  파일을 하나씩 손으로 옮기지 말고, 목록을 읽어 명령의 인자로 넘기는 방식으로 한다.
+
+setup:
+  cwd: /work
+  script: |
+    mkdir -p /work/picked
+    cd /work
+    touch a.txt b.txt c.txt d.txt e.txt
+    printf 'b.txt\nd.txt\ne.txt\n' > /work/targets.txt
+
+check:
+  - desc: 목록에 적힌 3개가 picked 안에 있음
+    cmd: test -f /work/picked/b.txt && test -f /work/picked/d.txt && test -f /work/picked/e.txt
+  - desc: picked 안에는 3개뿐임
+    cmd: '[ "$(ls -A /work/picked | wc -l)" = 3 ]'
+
+guard:
+  - desc: 목록에 없는 파일은 /work 에 남아 있음
+    cmd: test -f /work/a.txt && test -f /work/c.txt
+  - desc: 목록 파일 자체는 그대로 있음
+    cmd: '[ "$(wc -l < /work/targets.txt)" = 3 ]'
+
+hints:
+  - 파이프는 앞 명령의 출력을 뒤 명령의 입력으로 넘긴다. 그런데 mv 는 입력이 아니라 인자를 받는 명령이다.
+  - 'xargs 는 흘러들어온 줄을 모아 뒤 명령의 인자로 붙여준다. cat 목록 | xargs 명령 형태다.'
+  - '-I{} 를 쓰면 들어온 값이 들어갈 자리를 정할 수 있다: xargs -I{} mv {} /work/picked/'
+
+solution: |
+  cd /work
+  cat targets.txt | xargs -I{} mv {} /work/picked/

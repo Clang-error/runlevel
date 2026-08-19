@@ -1,0 +1,30 @@
+id: text-03
+category: 텍스트 처리
+level: 2
+prompt: |
+  /work/app.log 에서 ERROR가 포함된 줄만 골라
+  /work/error.txt 로 저장하라.
+
+setup:
+  cwd: /work
+  user: student
+  files:
+    /work/app.log: |
+      INFO  start
+      ERROR db timeout
+      INFO  ok
+      ERROR conn refused
+
+check:
+  - desc: error.txt 가 존재함
+    cmd: test -f /work/error.txt
+  - desc: ERROR 줄만 들어있음
+    cmd: '[ -s /work/error.txt ] && ! grep -qv ERROR /work/error.txt'
+  - desc: 2줄임
+    cmd: '[ "$(wc -l < /work/error.txt)" = 2 ]'
+
+hints:
+  - 특정 문자열이 든 줄만 뽑는 명령은 grep 이다.
+  - 출력을 파일로 보내려면 리다이렉션 > 을 쓴다.
+
+solution: grep ERROR /work/app.log > /work/error.txt

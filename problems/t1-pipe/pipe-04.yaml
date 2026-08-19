@@ -1,0 +1,29 @@
+id: pipe-04
+category: 파이프라인
+level: 1
+prompt: |
+  /work/photos 안에 파일이 몇 개인지 세어
+  그 개수만 /work/count.txt 에 저장하라.
+
+  목록을 뽑는 명령과 줄 수를 세는 명령을 파이프(|) 하나로 이어서 푼다.
+
+setup:
+  cwd: /work
+  script: |
+    mkdir -p /work/photos
+    touch /work/photos/a.jpg /work/photos/b.jpg /work/photos/c.jpg
+    touch /work/photos/d.png /work/photos/e.png /work/photos/f.png
+    touch /work/photos/g.png
+
+check:
+  - desc: count.txt 가 존재함
+    cmd: test -s /work/count.txt
+  - desc: 개수가 7 로 적혀 있음
+    cmd: '[ "$(tr -d "[:space:]" < /work/count.txt)" = 7 ]'
+
+hints:
+  - 디렉터리 안의 목록은 ls 로 본다.
+  - 줄 수를 세는 명령은 wc -l 이다.
+  - 앞 명령의 출력을 뒤 명령에 넘기려면 | 로 잇는다. 결과는 > 로 저장한다.
+
+solution: ls /work/photos | wc -l > /work/count.txt

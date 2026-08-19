@@ -1,0 +1,61 @@
+이미지 수리 중...
+
+[PASS] 전용 init 설치
+       -rwxr-xr-x 1 root root 410 Aug 16 01:31 /sbin/dotslash-init
+
+[PASS] 설치된 패키지 수
+       86
+
+[PASS] 용량
+       /dev/sda1       469M   34M  406M   8% /
+
+재부팅 검증...
+부팅 성공 (7.0s)
+
+[PASS] uname
+       Linux dotslash 6.18.36-0-lts #1-Alpine SMP PREEMPT_DYNAMIC 2026-06-20 16:50:52 i686 GNU/Linux
+
+[PASS] 루트 파일시스템
+       /dev/sda1 ext4
+
+[PASS] 도구 확인
+       mkfs.ext4   /sbin/mkfs.ext4
+       lsblk       /bin/lsblk
+       findmnt     /bin/findmnt
+       fdisk       /sbin/fdisk
+       gawk        /usr/bin/gawk
+       bash        /bin/bash
+       tree        /usr/bin/tree
+       file        /usr/bin/file
+
+[PASS] GNU sort -h
+       2K 3K 1M
+
+[PASS] GNU find -printf
+       /etc/hostname 9
+
+[PASS] ps 동작 (/proc 마운트 확인)
+       PID   USER     TIME  COMMAND
+           1 root      0:00 /bin/sh
+           2 root      0:00 [kthreadd]
+
+--- 실제 문제 채점 조건 실행 ---
+
+[PASS] [setup] text-03
+
+[PASS] [풀이] grep ERROR ... > error.txt
+
+[PASS] [check 1] error.txt 가 존재한다
+
+[PASS] [check 2] ERROR 줄만 들어있다
+
+[PASS] [check 3] 2줄이다
+
+=== 배포 크기 ===
+  v86 엔진 (wasm+js)  2.3MB
+  vmlinuz-lts         8.2MB
+  initramfs-lts       14.1MB
+  rootfs raw          512.0MB
+  rootfs zstd         10.0MB
+  -----------------------------------
+  최초 로딩 합계      34.6MB

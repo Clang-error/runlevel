@@ -1,0 +1,36 @@
+id: sudo-03
+category: sudo
+level: 4
+prompt: |
+  (보안 점검) /work/bin 안에 SUID 비트가 붙은 파일이 섞여 있다.
+
+  SUID 가 붙은 파일의 경로를 모두 찾아 /work/suid.txt 에 저장하라.
+
+setup:
+  # chown 은 SUID 비트를 지운다 (POSIX). 자동 chown 이 돌면 찾을 SUID 가 없어진다
+  keepOwner: true
+  cwd: /work
+  script: |
+    mkdir -p /work/bin
+    for f in normal1 danger1 normal2 danger2; do
+      printf '#!/bin/bash\necho hi\n' > /work/bin/$f
+      chmod 755 /work/bin/$f
+    done
+    chmod 4755 /work/bin/danger1 /work/bin/danger2
+
+check:
+  - desc: suid.txt 가 존재함
+    cmd: test -s /work/suid.txt
+  - desc: SUID 파일 2개가 들어있음
+    cmd: '[ "$(wc -l < /work/suid.txt)" = 2 ]'
+  - desc: danger1 과 danger2 임
+    cmd: grep -q danger1 /work/suid.txt && grep -q danger2 /work/suid.txt
+  - desc: 정상 파일은 들어있지 않음
+    cmd: '[ -s /work/suid.txt ] && ! grep -q normal /work/suid.txt'
+
+hints:
+  - SUID 는 권한 앞자리 4 다. ls -l 로 보면 소유자 자리에 s 가 보인다.
+  - find 의 권한 조건은 -perm 이다.
+  - -perm -4000 은 "SUID 비트가 켜져 있는 것"을 뜻한다. (- 가 붙으면 해당 비트만 검사)
+
+solution: find /work/bin -perm -4000 > /work/suid.txt

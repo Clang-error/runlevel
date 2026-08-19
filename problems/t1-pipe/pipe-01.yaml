@@ -1,0 +1,32 @@
+id: pipe-01
+category: 파이프라인
+level: 2
+prompt: |
+  /work/access.log 에서 가장 많이 요청한 IP 주소 1개를
+  /work/top.txt 에 저장하라. IP 만 적어야 한다.
+
+  로그의 첫 번째 칸이 IP 주소다.
+
+setup:
+  cwd: /work
+  files:
+    /work/access.log: |
+      10.0.0.5 GET /
+      10.0.0.9 GET /a
+      10.0.0.5 GET /b
+      10.0.0.7 GET /c
+      10.0.0.5 GET /d
+      10.0.0.9 GET /e
+
+check:
+  - desc: top.txt 가 존재함
+    cmd: test -s /work/top.txt
+  - desc: 10.0.0.5 만 들어있음
+    cmd: '[ "$(tr -d "[:space:]" < /work/top.txt)" = 10.0.0.5 ]'
+
+hints:
+  - 개수를 세려면 sort 로 모은 뒤 uniq -c 를 쓴다.
+  - uniq -c 결과를 숫자 기준으로 정렬하려면 sort -rn 이다.
+  - 맨 위 한 줄만 뽑으려면 head -1, 거기서 IP 만 남기려면 awk '{print $2}'.
+
+solution: awk '{print $1}' /work/access.log | sort | uniq -c | sort -rn | head -1 | awk '{print $2}' > /work/top.txt

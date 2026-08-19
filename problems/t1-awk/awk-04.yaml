@@ -1,0 +1,41 @@
+id: awk-04
+category: awk 와 sed
+level: 2
+prompt: |
+  /work/mixed.txt 는 줄마다 칸의 개수가 다르다. (공백으로 구분)
+
+  1. 각 줄의 마지막 칸만 뽑아 /work/last.txt 에 저장하라
+  2. 칸이 4개 이상인 줄만 통째로 골라 /work/wide.txt 에 저장하라
+
+  몇 번째가 마지막인지는 줄마다 다르므로 $3 처럼 못 박으면 안 된다.
+
+setup:
+  cwd: /work
+  files:
+    /work/mixed.txt: |
+      alpha one two
+      bravo three
+      charlie four five six
+      delta seven eight
+      echo nine ten eleven twelve
+
+check:
+  - desc: last.txt 가 5줄임
+    cmd: '[ "$(wc -l < /work/last.txt)" = 5 ]'
+  - desc: 각 줄의 마지막 칸이 맞음
+    cmd: '[ "$(head -1 /work/last.txt)" = two ] && [ "$(sed -n 3p /work/last.txt)" = six ] && [ "$(tail -1 /work/last.txt)" = twelve ]'
+  - desc: wide.txt 가 2줄임
+    cmd: '[ "$(wc -l < /work/wide.txt)" = 2 ]'
+  - desc: 칸이 4개 이상인 줄만 들어 있음
+    cmd: grep -q "^charlie" /work/wide.txt && grep -q "^echo" /work/wide.txt
+  - desc: 칸이 3개 이하인 줄은 빠져 있음
+    cmd: '[ -s /work/wide.txt ] && ! grep -q "^bravo" /work/wide.txt && ! grep -q "^alpha" /work/wide.txt'
+
+hints:
+  - NF 는 그 줄의 칸 개수를 담고 있다. 줄마다 값이 달라진다.
+  - '$NF 는 "NF 번째 칸", 즉 마지막 칸이다. $(NF-1) 이면 끝에서 두 번째다.'
+  - '동작을 안 적으면 awk 는 조건에 맞는 줄을 통째로 출력한다. awk ''NF >= 4'' 만으로 충분하다.'
+
+solution: |
+  awk '{print $NF}' /work/mixed.txt > /work/last.txt
+  awk 'NF >= 4' /work/mixed.txt > /work/wide.txt

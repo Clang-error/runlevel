@@ -1,0 +1,41 @@
+id: disk-02
+category: 마운트
+level: 4
+prompt: |
+  /dev/sdb 전체를 ext4 로 포맷해 /data 에 마운트하고,
+  재부팅 후에도 유지되게 하라.
+
+  (파티션 없이 디스크 전체를 그대로 포맷해도 된다)
+
+setup:
+  # 여기만 root 로 둔다. 정답에 >> /etc/fstab 이 있는데, 리다이렉션은 sudo 이전에
+  # 사용자 셸이 처리해서 sudo 를 붙여도 막힌다 (sudo tee 로 풀어야 한다).
+  # 그건 그것대로 가르칠 값어치가 있지만 이 문제의 초점이 아니다.
+  user: root
+  cwd: /work
+  disks:
+    - dev: /dev/sdb
+      size: 64M
+  script: |
+    mkdir -p /data
+
+check:
+  - desc: /data 가 마운트되어 있음
+    cmd: mountpoint -q /data
+  - desc: 파일시스템이 ext4 임
+    cmd: '[ "$(findmnt -no FSTYPE /data)" = ext4 ]'
+  - desc: fstab 에 등록되어 재부팅 후에도 유지됨
+    cmd: grep -vE '^\s*#' /etc/fstab | grep -qE '\s/data\s'
+  - desc: fstab 항목이 실제로 동작함 (umount 후 mount /data 가 됨)
+    cmd: umount /data && mount /data && mountpoint -q /data
+
+hints:
+  - lsblk 로 디스크를 먼저 확인한다.
+  - 마운트만 하면 재부팅 시 사라진다. /etc/fstab 을 봐라.
+  - fstab 한 줄은 "장치 마운트지점 파일시스템 옵션 dump pass" 순이다.
+  - 다 쓴 뒤 mount /data 로 fstab 항목이 맞는지 검증할 수 있다.
+
+solution: |
+  mkfs.ext4 -F /dev/sdb
+  mount /dev/sdb /data
+  echo '/dev/sdb /data ext4 defaults 0 2' >> /etc/fstab

@@ -1,0 +1,28 @@
+id: text-01
+category: 텍스트 처리
+level: 1
+prompt: |
+  /work/notes.txt 의 내용을 화면에 출력하고,
+  같은 내용을 /work/copy.txt 로 복사하라.
+
+setup:
+  cwd: /work
+  files:
+    /work/notes.txt: |
+      apple
+      banana
+      cherry
+
+check:
+  - desc: copy.txt 가 존재함
+    cmd: test -f /work/copy.txt
+  - desc: 내용이 notes.txt 와 같음
+    cmd: cmp -s /work/notes.txt /work/copy.txt
+
+hints:
+  - 파일 내용을 보는 명령은 cat 이다.
+  - 파일을 복사하는 명령은 cp 다.
+
+solution: |
+  cat /work/notes.txt
+  cp /work/notes.txt /work/copy.txt

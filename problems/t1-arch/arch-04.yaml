@@ -1,0 +1,41 @@
+id: arch-04
+category: 압축과 링크
+level: 3
+prompt: |
+  링크에는 두 종류가 있다. /work/data.txt 를 가지고 둘 다 만들어라.
+
+  - 하드링크는 /work/hard.txt 로
+  - 심볼릭 링크는 /work/soft.txt 로
+
+  하드링크는 같은 실체에 이름을 하나 더 붙이는 것이라 원본과 inode 번호가 같아지고,
+  원본의 링크 수가 2 로 늘어난다. 심볼릭 링크는 경로를 적어둔 별개의 파일이다.
+
+setup:
+  cwd: /work
+  files:
+    /work/data.txt: |
+      실제 내용
+
+check:
+  - desc: hard.txt 가 data.txt 와 같은 inode 를 가짐
+    cmd: '[ -e /work/hard.txt ] && [ "$(stat -c %i /work/data.txt)" = "$(stat -c %i /work/hard.txt)" ]'
+  - desc: data.txt 의 링크 수가 2 로 늘어남
+    cmd: '[ "$(stat -c %h /work/data.txt)" = 2 ]'
+  - desc: soft.txt 가 심볼릭 링크임
+    cmd: test -L /work/soft.txt
+  - desc: soft.txt 가 data.txt 를 가리킴
+    cmd: '[ "$(readlink -f /work/soft.txt)" = /work/data.txt ]'
+
+guard:
+  - desc: 원본 data.txt 의 내용이 그대로임
+    cmd: grep -q "실제 내용" /work/data.txt
+
+hints:
+  - ln 은 옵션 없이 쓰면 하드링크, -s 를 붙이면 심볼릭 링크를 만든다.
+  - 'inode 번호와 링크 수는 stat -c %i 와 stat -c %h 로 확인할 수 있다.'
+  - 'ln /work/data.txt /work/hard.txt 와 ln -s /work/data.txt /work/soft.txt'
+
+solution: |
+  ln /work/data.txt /work/hard.txt
+  ln -s /work/data.txt /work/soft.txt
+  stat -c '%i %h %n' /work/data.txt /work/hard.txt

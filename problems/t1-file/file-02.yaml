@@ -1,0 +1,29 @@
+id: file-02
+category: 파일 조작
+level: 2
+prompt: |
+  /work/data 안에서 크기가 0인 빈 파일을 모두 찾아 삭제하라.
+  내용이 있는 파일은 남겨야 한다.
+
+setup:
+  cwd: /work
+  script: |
+    mkdir -p /work/data/sub
+    echo hello > /work/data/keep1.txt
+    echo world > /work/data/sub/keep2.txt
+    touch /work/data/empty1.txt /work/data/empty2.log /work/data/sub/empty3.txt
+
+check:
+  - desc: 빈 파일이 남아있지 않음
+    cmd: '[ "$(find /work/data -type f -empty | wc -l)" = 0 ]'
+
+guard:
+  - desc: 내용 있는 파일 2개는 그대로임
+    cmd: test -s /work/data/keep1.txt && test -s /work/data/sub/keep2.txt
+
+hints:
+  - find 로 조건에 맞는 파일을 찾을 수 있다.
+  - 빈 파일 조건은 -empty, 파일만 찾으려면 -type f.
+  - 찾은 것을 지우려면 -delete 를 붙인다.
+
+solution: find /work/data -type f -empty -delete

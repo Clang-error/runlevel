@@ -1,0 +1,38 @@
+id: sudo-04
+category: sudo
+level: 5
+prompt: |
+  (보안 조치) /work/bin 안에서 불필요한 SUID 비트를 모두 제거하라.
+
+  단 /work/bin/allowed 는 정상적인 SUID 프로그램이므로 그대로 둬야 한다.
+  실행 권한(755)은 유지해야 한다.
+
+setup:
+  # chown 은 SUID 비트를 지운다 (POSIX). 자동 chown 이 돌면 뗄 SUID 가 없어진다
+  keepOwner: true
+  # 남의 파일에서 SUID 를 떼는 것은 관리자 일이지만, sudo 로 한다
+  sudo: true
+  cwd: /work
+  script: |
+    mkdir -p /work/bin
+    for f in allowed risky1 risky2; do
+      printf '#!/bin/bash\necho hi\n' > /work/bin/$f
+      chmod 4755 /work/bin/$f
+    done
+
+check:
+  - desc: risky1 risky2 에 SUID 가 없음
+    cmd: '[ "$(find /work/bin -name "risky*" -perm -4000 | wc -l)" = 0 ]'
+  - desc: 둘 다 여전히 실행 가능함 (755)
+    cmd: '[ "$(stat -c %a /work/bin/risky1)" = 755 ] && [ "$(stat -c %a /work/bin/risky2)" = 755 ]'
+
+guard:
+  - desc: allowed 의 SUID 는 그대로임
+    cmd: '[ "$(stat -c %a /work/bin/allowed)" = 4755 ]'
+
+hints:
+  - SUID 만 떼려면 chmod u-s 를 쓴다. chmod 755 로도 되지만 다른 비트까지 덮어쓴다.
+  - 여러 파일에 한 번에 적용하려면 find 와 -exec 를 조합한다.
+  - allowed 를 건드리지 않으려면 -name 조건으로 걸러내거나 직접 두 파일만 지정한다.
+
+solution: sudo chmod u-s /work/bin/risky1 /work/bin/risky2

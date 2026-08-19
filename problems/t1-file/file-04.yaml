@@ -1,0 +1,42 @@
+id: file-04
+category: 파일 조작
+level: 1
+prompt: |
+  두 가지를 복사하시오.
+
+  1. /work/src/readme.txt 를 /work/readme-backup.txt 로 복사
+  2. /work/src 디렉터리를 통째로 복사해서 /work/backup 을 만들기
+     (복사가 끝나면 /work/backup/readme.txt 와
+      /work/backup/config/app.conf 가 있어야 한다)
+
+  원본은 그대로 남아 있어야 한다.
+
+setup:
+  cwd: /work
+  script: |
+    mkdir -p /work/src/config
+    printf 'hello dotslash\n' > /work/src/readme.txt
+    printf 'name=dotslash\nport=8080\n' > /work/src/config/app.conf
+
+check:
+  - desc: readme-backup.txt 가 원본과 같은 내용으로 있음
+    cmd: cmp -s /work/src/readme.txt /work/readme-backup.txt
+  - desc: backup 디렉터리가 만들어졌음
+    cmd: test -d /work/backup
+  - desc: backup/readme.txt 가 원본과 같음
+    cmd: cmp -s /work/src/readme.txt /work/backup/readme.txt
+  - desc: 하위 디렉터리까지 복사되어 backup/config/app.conf 가 원본과 같음
+    cmd: cmp -s /work/src/config/app.conf /work/backup/config/app.conf
+
+guard:
+  - desc: 원본 /work/src 는 그대로 남아 있음
+    cmd: test -s /work/src/readme.txt && test -s /work/src/config/app.conf
+
+hints:
+  - 파일을 복사하는 명령은 cp 다.
+  - cp 는 디렉터리를 그냥은 복사하지 못한다. 안쪽까지 통째로 복사하려면 옵션이 필요하다.
+  - 'cp -r 원본디렉터리 대상이름 이다. cp -r /work/src /work/backup 처럼 쓴다.'
+
+solution: |
+  cp /work/src/readme.txt /work/readme-backup.txt
+  cp -r /work/src /work/backup

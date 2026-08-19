@@ -1,0 +1,37 @@
+id: sudo-02
+category: sudo
+level: 4
+prompt: |
+  (관리자 작업) student 가 로그 파일만 sudo 로 볼 수 있게 하라.
+
+  - /usr/bin/tail 명령만 비밀번호 없이 허용한다
+  - 그 외의 명령은 sudo 로 실행할 수 없어야 한다
+
+  /etc/sudoers 를 편집하면 된다.
+
+setup:
+  # sudoers 를 편집하는 관리자 작업이다
+  user: root
+  cwd: /work
+  script: |
+    echo 'app started' > /var/log/app.log
+    sed -i '/^student/d' /etc/sudoers
+
+check:
+  - desc: student 가 sudo 로 tail 을 쓸 수 있음
+    cmd: su -s /bin/bash student -c 'sudo -n /usr/bin/tail -1 /var/log/app.log' 2>/dev/null | grep -q started
+
+guard:
+  - desc: 그 외 명령은 여전히 sudo 로 막혀 있음
+    # 실제로 실행해보는 대신 sudo 에게 권한만 물어본다.
+    # su + sudo 를 띄우는 것보다 빠르고, 실행 부작용도 실패 지점도 없다.
+    cmd: '! sudo -l -U student /bin/cat >/dev/null 2>&1'
+
+hints:
+  - 'sudoers 한 줄은 "사용자 호스트=(실행계정) 옵션: 명령" 형식이다.'
+  - "비밀번호를 묻지 않게 하려면 NOPASSWD: 를 쓴다."
+  - 명령은 전체 경로로 적어야 한다. 예 /usr/bin/tail
+  - "예시: student ALL=(ALL) NOPASSWD: /usr/bin/tail"
+
+solution: |
+  echo 'student ALL=(ALL) NOPASSWD: /usr/bin/tail' >> /etc/sudoers

@@ -1,0 +1,35 @@
+id: perm-03
+category: 권한
+level: 3
+prompt: |
+  /work/report.txt 를 team 그룹 사람들이 읽을 수 있게 하라.
+  파일의 그룹을 team 으로 바꾸고, 그룹에게 읽기 권한을 줘야 한다.
+  다른 사용자에게는 아무 권한도 주지 마라.
+
+setup:
+  cwd: /work
+  user: student
+  # setup 이 student 를 team 그룹에 넣는다. 셸을 새로 띄워야 그 그룹이 붙는다
+  relogin: true
+  files:
+    /work/report.txt: |
+      2026 Q3 결산
+      매출 1억
+  script: |
+    addgroup team 2>/dev/null
+    adduser student team 2>/dev/null
+    chmod 600 /work/report.txt
+
+check:
+  - desc: 그룹이 team 임
+    cmd: '[ "$(stat -c %G /work/report.txt)" = team ]'
+  - desc: 권한이 640 임
+    cmd: '[ "$(stat -c %a /work/report.txt)" = 640 ]'
+
+hints:
+  - 파일의 그룹만 바꾸려면 chgrp 를 쓴다. chown :그룹 도 된다.
+  - 소유자 rw = 6, 그룹 r = 4, 기타 없음 = 0.
+
+solution: |
+  chgrp team /work/report.txt
+  chmod 640 /work/report.txt

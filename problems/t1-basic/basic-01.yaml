@@ -1,0 +1,31 @@
+id: basic-01
+category: 기본 탐색
+level: 1
+prompt: |
+  /work 아래에 project/src 디렉터리가 있다.
+  그 안으로 이동해서 main.c 라는 빈 파일을 만들어라.
+
+setup:
+  cwd: /work
+  script: |
+    mkdir -p /work/project/src /work/project/docs
+    touch /work/project/docs/readme.txt
+
+check:
+  - desc: project/src 안에 main.c 가 있음
+    cmd: test -f /work/project/src/main.c
+
+guard:
+  - desc: 엉뚱한 위치에 main.c 를 만들지 않았음
+    cmd: '! test -e /work/main.c && ! test -e /work/project/main.c'
+  - desc: 원래 있던 readme.txt 는 그대로임
+    cmd: test -f /work/project/docs/readme.txt
+
+hints:
+  - 디렉터리를 옮겨 다니는 명령은 cd 이다. 지금 어디에 있는지는 pwd 로 확인한다.
+  - / 로 시작하지 않으면 현재 위치를 기준으로 한 경로다. /work 에서는 cd project/src 로 충분하다.
+  - 'cd project/src 로 이동한 다음 touch main.c 를 실행한다.'
+
+solution: |
+  cd project/src
+  touch main.c

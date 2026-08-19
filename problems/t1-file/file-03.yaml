@@ -1,0 +1,33 @@
+id: file-03
+category: 파일 조작
+level: 1
+prompt: |
+  /work 안에 아래 디렉터리 구조를 만드시오.
+
+    project/
+      src/utils/
+      docs/
+
+  project 도 src 도 아직 없다. 중간 디렉터리까지 한 번에 만들 수 있다.
+  마지막으로 docs 안에 빈 파일 index.md 를 만드시오.
+
+setup:
+  cwd: /work
+
+check:
+  - desc: project/src/utils 까지 디렉터리가 만들어졌음
+    cmd: test -d /work/project/src/utils
+  - desc: project/docs 디렉터리가 만들어졌음
+    cmd: test -d /work/project/docs
+  - desc: docs 안에 index.md 파일이 있음
+    cmd: test -f /work/project/docs/index.md
+
+hints:
+  - 디렉터리를 만드는 명령은 mkdir 이다.
+  - mkdir 은 중간 디렉터리가 없으면 실패한다. -p 를 붙이면 없는 부모까지 한 번에 만든다.
+  - 빈 파일 하나는 touch 로 만든다.
+
+solution: |
+  mkdir -p /work/project/src/utils
+  mkdir -p /work/project/docs
+  touch /work/project/docs/index.md

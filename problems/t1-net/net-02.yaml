@@ -1,0 +1,36 @@
+id: net-02
+category: 네트워크
+level: 2
+prompt: |
+  세 대의 서버가 있다고 한다: web01, db01, cache01
+
+  실제로 살아 있는(ping 이 되는) 호스트의 이름만 골라
+  /work/alive.txt 에 한 줄에 하나씩 저장하라.
+
+setup:
+  cwd: /work
+  script: |
+    netlab reset
+    netlab add 10.0.0.1 web01
+    netlab add 10.0.0.2 db01
+    echo '10.0.0.3 cache01 # netlab' >> /etc/hosts
+
+check:
+  - desc: alive.txt 가 존재함
+    cmd: test -s /work/alive.txt
+  - desc: 2줄임
+    cmd: '[ "$(wc -l < /work/alive.txt)" = 2 ]'
+  - desc: 살아있는 서버가 들어가 있음
+    cmd: grep -q web01 /work/alive.txt && grep -q db01 /work/alive.txt
+  - desc: 죽어있는 서버가 들어가있지 않음
+    cmd: '[ -s /work/alive.txt ] && ! grep -q cache01 /work/alive.txt'
+
+hints:
+  - ping -c 1 호스트 로 한 번만 보내볼 수 있다.
+  - 응답이 없으면 오래 기다리니 -W 1 로 대기 시간을 줄인다.
+  - 성공 여부는 종료 코드로 알 수 있다. ping ... && echo 이름
+
+solution: |
+  for h in web01 db01 cache01; do
+      ping -c 1 -W 1 "$h" >/dev/null 2>&1 && echo "$h"
+  done > /work/alive.txt

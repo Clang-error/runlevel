@@ -1,0 +1,39 @@
+id: disk-01
+category: 마운트
+level: 3
+prompt: |
+  새 디스크 /dev/sdb 가 장착됐다. 아직 파티션도 파일시스템도 없다.
+
+  디스크 전체를 쓰는 파티션 하나를 만들고,
+  ext4 파일시스템을 만든 뒤 /data 에 마운트하라.
+
+setup:
+  # 파티션·포맷·마운트는 관리자 일이지만, 실제로는 sudo 로 한다
+  sudo: true
+  cwd: /work
+  disks:
+    - dev: /dev/sdb
+      size: 64M
+  script: |
+    mkdir -p /data
+
+check:
+  - desc: /dev/sdb1 파티션이 있음
+    cmd: test -b /dev/sdb1
+  - desc: /data 가 마운트되어 있음
+    cmd: mountpoint -q /data
+  - desc: 파일시스템이 ext4 임
+    cmd: '[ "$(findmnt -no FSTYPE /data)" = ext4 ]'
+  - desc: 마운트된 것이 /dev/sdb1 임
+    cmd: '[ "$(findmnt -no SOURCE /data)" = /dev/sdb1 ]'
+
+hints:
+  - lsblk 로 디스크가 붙었는지, 파티션이 있는지 먼저 확인한다.
+  - 파티션은 fdisk /dev/sdb 로 만든다. n(new) -> p(primary) -> 기본값 엔터 -> w(write).
+  - 파일시스템은 mkfs.ext4 /dev/sdb1 로 만든다.
+  - 마운트는 mount /dev/sdb1 /data 다.
+
+solution: |
+  printf "n\np\n1\n\n\nw\n" | sudo fdisk /dev/sdb
+  sudo mkfs.ext4 -F /dev/sdb1
+  sudo mount /dev/sdb1 /data

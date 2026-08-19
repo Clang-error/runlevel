@@ -1,0 +1,43 @@
+id: net-01
+category: 네트워크
+level: 2
+prompt: |
+  이 서버에는 IPv4 주소가 여러 개 붙어 있다.
+
+  루프백(127.x)을 뺀 나머지 주소를 모두 찾아
+  /work/myip.txt 에 한 줄에 하나씩 저장하라.
+
+  넷마스크(/32 같은 부분)는 빼고 주소만 적는다.
+
+setup:
+  cwd: /work
+  script: |
+    netlab reset
+    netlab add 10.0.0.5 host-a
+    netlab add 10.0.0.6 host-b
+    netlab add 172.16.4.9 host-c
+    netlab add 192.168.50.4 host-d
+    netlab add 192.168.50.7 host-e
+
+check:
+  - desc: myip.txt 가 존재함
+    cmd: test -s /work/myip.txt
+  - desc: 5줄임
+    cmd: '[ "$(wc -l < /work/myip.txt)" = 5 ]'
+  - desc: 다섯 주소가 모두 들어있음
+    cmd: '[ "$(sort /work/myip.txt | tr "\n" " ")" = "10.0.0.5 10.0.0.6 172.16.4.9 192.168.50.4 192.168.50.7 " ]'
+  - desc: 루프백(127.0.0.1)은 없음
+    cmd: '[ -s /work/myip.txt ] && ! grep -q "^127\." /work/myip.txt'
+  - desc: 넷마스크가 붙어 있지 않음
+    cmd: '[ -s /work/myip.txt ] && ! grep -q "/" /work/myip.txt'
+
+hints:
+  - 주소를 보는 명령은 ip addr 다. IPv4 만 보려면 ip -4 addr 를 쓴다.
+  - 한 줄에 하나씩 나오게 하려면 -o 를 붙인다. 직접 쳐보라 - ip -4 -o addr
+  - 그 출력에서 주소는 네 번째 칸이다. 칸을 뽑는 명령은 awk 다 - ip -4 -o addr | awk '{print $4}'
+  - 결과가 10.0.0.5/32 처럼 넷마스크가 붙어 있다. / 앞만 남기려면 cut -d/ -f1 을 이어붙인다.
+  - 마지막으로 루프백을 뺀다. grep -v 는 조건에 맞지 않는 줄만 남긴다 - grep -v '^127\.'
+  - 다 이으면 이렇게 된다 - ip -4 -o addr | awk '{print $4}' | cut -d/ -f1 | grep -v '^127\.' > /work/myip.txt
+
+solution: |
+  ip -4 -o addr | awk '{print $4}' | cut -d/ -f1 | grep -v '^127\.' > /work/myip.txt

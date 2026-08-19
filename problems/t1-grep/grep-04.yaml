@@ -1,0 +1,33 @@
+id: grep-04
+category: grep
+level: 1
+prompt: |
+  /work/server.log 에서 ERROR 가 들어간 줄만 골라
+  /work/error.txt 에 저장하라.
+
+setup:
+  cwd: /work
+  files:
+    /work/server.log: |
+      server started
+      ERROR disk full
+      user login
+      ERROR timeout
+      shutdown
+
+check:
+  - desc: error.txt 가 존재함
+    cmd: test -s /work/error.txt
+  - desc: 2줄임
+    cmd: '[ "$(wc -l < /work/error.txt)" = 2 ]'
+  - desc: disk full 과 timeout 줄이 들어있음
+    cmd: grep -q 'disk full' /work/error.txt && grep -q timeout /work/error.txt
+  - desc: ERROR 없는 줄은 들어있지 않음
+    cmd: '[ -s /work/error.txt ] && ! grep -qv ERROR /work/error.txt'
+
+hints:
+  - 파일에서 특정 문자열이 든 줄만 뽑는 명령은 grep 이다.
+  - 쓰는 법은 grep 찾을문자열 파일이름 이다.
+  - 화면 대신 파일로 보내려면 > 로 결과를 저장한다.
+
+solution: grep ERROR /work/server.log > /work/error.txt

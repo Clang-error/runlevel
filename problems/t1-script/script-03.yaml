@@ -1,0 +1,43 @@
+id: script-03
+category: 셸 스크립트
+level: 4
+prompt: |
+  /work/report.sh 스크립트를 만들어라.
+
+  인자로 받은 디렉터리를 훑어서, 확장자별 파일 개수를 출력해야 한다.
+  형식은 "확장자 개수" 한 줄씩이고, 확장자 알파벳 순으로 정렬한다.
+
+  예)  ./report.sh /work/mixed
+       log 1
+       txt 2
+
+setup:
+  # setup 이 소유자를 일부러 지정한다. 자동 chown 이 그걸 덮으면 문제가 성립하지 않는다
+  keepOwner: true
+  cwd: /work
+  user: student
+  script: |
+    mkdir -p /work/mixed /work/mixed2
+    touch /work/mixed/a.txt /work/mixed/b.txt /work/mixed/c.log
+    touch /work/mixed2/x.md /work/mixed2/y.md /work/mixed2/z.md /work/mixed2/w.sh
+    chown -R student /work/mixed /work/mixed2
+
+check:
+  - desc: report.sh 가 실행 가능함
+    cmd: test -x /work/report.sh
+  - desc: mixed 결과가 "log 1 / txt 2" 임
+    cmd: '[ "$(/work/report.sh /work/mixed 2>/dev/null | tr "\n" "|")" = "log 1|txt 2|" ]'
+  - desc: mixed2 결과가 "md 3 / sh 1" 임 (인자를 실제로 씀)
+    cmd: '[ "$(/work/report.sh /work/mixed2 2>/dev/null | tr "\n" "|")" = "md 3|sh 1|" ]'
+
+hints:
+  - 파일 이름에서 확장자만 남기려면 sed 's/.*\.//' 또는 awk -F. '{print $NF}' 를 쓴다.
+  - 개수 세기는 sort | uniq -c 다. 다만 출력이 "개수 확장자" 순서로 나온다.
+  - awk '{print $2, $1}' 로 순서를 뒤집을 수 있다.
+
+solution: |
+  cat > /work/report.sh <<'SH'
+  #!/bin/bash
+  ls "$1" | sed 's/.*\.//' | sort | uniq -c | awk '{print $2, $1}'
+  SH
+  chmod +x /work/report.sh

@@ -1,0 +1,31 @@
+id: text-06
+category: 텍스트 처리
+level: 2
+prompt: |
+  /work/config.conf 안의 모든 "localhost" 를 "127.0.0.1" 로 바꿔라.
+  파일을 직접 수정해야 한다.
+
+setup:
+  cwd: /work
+  files:
+    /work/config.conf: |
+      db_host = localhost
+      db_port = 5432
+      cache_host = localhost
+      log_level = info
+
+check:
+  - desc: localhost 가 남아있지 않음
+    cmd: '! grep -q localhost /work/config.conf'
+  - desc: 127.0.0.1 이 2개 있음
+    cmd: '[ "$(grep -c 127\.0\.0\.1 /work/config.conf)" = 2 ]'
+
+guard:
+  - desc: 다른 줄은 그대로임
+    cmd: grep -q '^db_port = 5432$' /work/config.conf && grep -q '^log_level = info$' /work/config.conf
+
+hints:
+  - 문자열 치환은 sed 's/찾을것/바꿀것/g' 다.
+  - 파일을 직접 고치려면 sed -i 를 쓴다.
+
+solution: sed -i 's/localhost/127.0.0.1/g' /work/config.conf

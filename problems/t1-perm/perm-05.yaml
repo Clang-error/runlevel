@@ -1,0 +1,35 @@
+id: perm-05
+category: 권한
+level: 4
+prompt: |
+  (관리자 작업) /work/upload 디렉터리를 www 그룹이 함께 쓰도록 설정하라.
+
+  - 그룹을 www 로 바꾼다
+  - 그룹에게 읽기/쓰기/실행을 준다
+  - 앞으로 이 디렉터리 안에 만들어지는 파일이 www 그룹을 자동으로
+    물려받게 한다 (setgid)
+  - 기타 사용자에게는 아무 권한도 주지 않는다
+
+setup:
+  # 그룹 변경은 관리자 일이지만, 실제로는 root 로 로그인하지 않고 sudo 로 한다
+  sudo: true
+  cwd: /work
+  script: |
+    addgroup www 2>/dev/null
+    mkdir -p /work/upload
+    chmod 755 /work/upload
+
+check:
+  - desc: 그룹이 www 임
+    cmd: '[ "$(stat -c %G /work/upload)" = www ]'
+  - desc: 권한이 2770 임 (setgid + 소유자·그룹 rwx)
+    cmd: '[ "$(stat -c %a /work/upload)" = 2770 ]'
+
+hints:
+  - 그룹 변경은 chgrp 다.
+  - setgid 는 chmod 앞자리 2 다. sticky 가 1, setuid 가 4.
+  - 소유자 rwx=7, 그룹 rwx=7, 기타 없음=0 이므로 뒤 세 자리는 770.
+
+solution: |
+  sudo chgrp www /work/upload
+  sudo chmod 2770 /work/upload

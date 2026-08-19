@@ -1,0 +1,31 @@
+id: find-01
+category: find
+level: 2
+prompt: |
+  /work/project 안에서 확장자가 .conf 인 파일을 모두 찾아
+  경로 목록을 /work/conf.txt 에 저장하라. (한 줄에 하나씩)
+
+  /work 에는 project 밖에도 .conf 파일이 있다. project 안만 찾아야 한다.
+
+setup:
+  cwd: /work
+  script: |
+    mkdir -p /work/project/etc /work/project/src/deep
+    touch /work/project/app.conf /work/project/etc/db.conf
+    touch /work/project/src/deep/cache.conf
+    touch /work/project/readme.md /work/project/src/main.c
+    touch /work/outside.conf
+
+check:
+  - desc: conf.txt 가 존재함
+    cmd: test -s /work/conf.txt
+  - desc: .conf 파일 3개가 모두 들어있음
+    cmd: '[ "$(grep -c "\.conf$" /work/conf.txt)" = 3 ]'
+  - desc: .conf 가 아닌 것은 없음
+    cmd: '[ -s /work/conf.txt ] && ! grep -qv "\.conf$" /work/conf.txt'
+
+hints:
+  - find 는 이름으로 찾을 때 -name 을 쓴다.
+  - 와일드카드는 셸이 먼저 해석하지 않도록 따옴표로 감싼다. -name "*.conf"
+
+solution: find /work/project -name "*.conf" > /work/conf.txt

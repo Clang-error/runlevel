@@ -1,0 +1,32 @@
+id: net-04
+category: 네트워크
+level: 3
+prompt: |
+  10.0.0.10 서버를 점검하려 한다.
+
+  22, 80, 443, 3306 중 실제로 열려 있는 포트만 골라
+  작은 수부터 /work/open.txt 에 저장하라. 번호만 적는다.
+
+  (nmap 은 기본 스캔에 raw 소켓이 필요하다. 이 환경에서는 -sT 를 쓴다)
+
+setup:
+  cwd: /work
+  script: |
+    netlab reset
+    netlab add 10.0.0.10 target 22 3306
+
+check:
+  - desc: open.txt 가 존재함
+    cmd: test -s /work/open.txt
+  - desc: 2개임
+    cmd: '[ "$(wc -l < /work/open.txt)" = 2 ]'
+  - desc: 22 와 3306 임
+    cmd: '[ "$(tr "\n" " " < /work/open.txt)" = "22 3306 " ]'
+
+hints:
+  - nmap -sT -Pn -p 22,80,443,3306 10.0.0.10 으로 스캔한다.
+  - -Pn 은 "핑 안 해보고 그냥 스캔" 이다.
+  - 결과에서 open 인 줄만 남기고 포트 번호를 뽑는다. grep open | cut -d/ -f1
+
+solution: |
+  nmap -sT -Pn -p 22,80,443,3306 10.0.0.10 | grep open | cut -d/ -f1 | sort -n > /work/open.txt

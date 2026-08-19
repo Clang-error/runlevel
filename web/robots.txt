@@ -1,0 +1,16 @@
+# runlevel — 브라우저에서 도는 리눅스 명령어 연습
+# https://runlevel.cc
+
+User-agent: *
+Allow: /
+
+# 게스트 디스크와 스냅샷이 들어 있다. 20MB 가 넘는 바이너리라 크롤러가 받아도
+# 색인에 넣을 것이 없고 대역폭만 나간다.
+Disallow: /img/
+
+# 문제 정의 파일에는 정답(solution)이 그대로 들어 있다.
+# 페이지는 브라우저가 직접 받아가므로 이 규칙에 영향받지 않는다 —
+# 검색 결과에 정답이 먼저 뜨는 것만 막는다.
+Disallow: /problems/
+
+Sitemap: https://runlevel.cc/sitemap.xml

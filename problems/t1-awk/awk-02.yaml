@@ -1,0 +1,33 @@
+id: awk-02
+category: awk 와 sed
+level: 2
+prompt: |
+  /work/orders.csv 는 "주문번호,상태,금액" 형식이다.
+
+  상태가 done 인 주문의 금액만 모두 더해서, 그 합계 숫자만 /work/paid.txt 에 저장하라.
+  cancel 이나 pending 은 빼야 한다.
+
+setup:
+  cwd: /work
+  files:
+    /work/orders.csv: |
+      id,status,amount
+      1001,done,1200
+      1002,cancel,3000
+      1003,done,800
+      1004,pending,500
+      1005,done,1500
+
+check:
+  - desc: paid.txt 가 생성되었음
+    cmd: test -s /work/paid.txt
+  - desc: done 인 주문의 합계(3500)가 맞음
+    cmd: '[ "$(tr -d " " < /work/paid.txt)" = 3500 ]'
+
+hints:
+  - 'awk 는 패턴과 동작을 짝지어 쓴다. 패턴 { 동작 } 형태이고, 패턴에 맞는 줄에서만 동작이 실행된다.'
+  - '$2 == "done" 이 패턴이 된다. 변수는 미리 선언하지 않아도 되고 처음 쓸 때 0 에서 시작한다.'
+  - 'END { } 블록은 모든 줄을 다 읽은 뒤 딱 한 번 실행된다. 합계를 찍기에 알맞은 자리다.'
+
+solution: |
+  awk -F, '$2 == "done" {s += $3} END {print s}' /work/orders.csv > /work/paid.txt

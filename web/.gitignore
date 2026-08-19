@@ -1,0 +1,5 @@
+node_modules/
+result.json
+progress.log
+dist/
+*.log

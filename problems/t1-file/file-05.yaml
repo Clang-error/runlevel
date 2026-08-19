@@ -1,0 +1,40 @@
+id: file-05
+category: 파일 조작
+level: 1
+prompt: |
+  같은 명령 하나로 이름 바꾸기와 옮기기를 모두 할 수 있다.
+
+  1. /work/report-draft.txt 의 이름을 report-final.txt 로 바꾸시오.
+  2. /work/notes.txt 를 /work/archive 디렉터리 안으로 옮기시오.
+
+  복사가 아니라 이동이다. 원래 자리에는 남아 있으면 안 된다.
+
+setup:
+  cwd: /work
+  script: |
+    mkdir -p /work/archive
+    printf 'v1-draft\n초안 내용\n' > /work/report-draft.txt
+    printf 'memo-line\n' > /work/notes.txt
+
+check:
+  - desc: report-final.txt 가 있고 내용이 원본 그대로임
+    cmd: test -s /work/report-final.txt && grep -q v1-draft /work/report-final.txt
+  - desc: 옛 이름 report-draft.txt 는 남아 있지 않음
+    cmd: '! test -e /work/report-draft.txt'
+  - desc: notes.txt 가 archive 안에 있고 내용이 그대로임
+    cmd: test -s /work/archive/notes.txt && grep -q memo-line /work/archive/notes.txt
+  - desc: /work 바로 아래에 notes.txt 가 남아 있지 않음
+    cmd: '! test -e /work/notes.txt'
+
+guard:
+  - desc: archive 디렉터리는 그대로 있음
+    cmd: test -d /work/archive
+
+hints:
+  - 이름 바꾸기도 옮기기도 mv 로 한다.
+  - 'mv 옛이름 새이름 이면 이름이 바뀌고, mv 파일 디렉터리/ 면 그 안으로 들어간다.'
+  - mv /work/report-draft.txt /work/report-final.txt 그리고 mv /work/notes.txt /work/archive/
+
+solution: |
+  mv /work/report-draft.txt /work/report-final.txt
+  mv /work/notes.txt /work/archive/

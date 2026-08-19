@@ -1,0 +1,24 @@
+
+[PASS] 디스크 확인
+       NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
+       sda      8:0    0  512M  0 disk 
+       ââsda1   8:1    0  511M  0 part /
+       sdb      8:16   0  128M  0 disk 
+       sr0     11:0    1 1024M  1 rom
+
+[PASS] 파티션 + 포맷
+       [    7.257120]  sdb: sdb1
+       ok
+
+[PASS] 복사
+       [    8.529172] EXT4-fs (sdb1): mounted filesystem 58448377-ccc4-4377-8d09-16649fc988c9 r/w with ordered data mode. Quota mode: none.
+       ok
+
+[PASS] 새 디스크 용량
+       /dev/sdb1       114M   34M   72M  32% /mnt/new
+
+[PASS] 복사 검증
+       /mnt/new/sbin/dotslash-init  /mnt/new/sbin/mkfs.ext4  /mnt/new/usr/bin/gawk
+
+raw  128.0MB
+zstd 9.8MB

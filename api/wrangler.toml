@@ -1,0 +1,18 @@
+name = "runlevel-api"
+main = "src/index.js"
+compatibility_date = "2026-08-17"
+
+# 사이트와 같은 오리진에 붙인다. Worker 라우트가 Pages 보다 먼저 평가되므로
+# /api/* 만 여기로 오고 나머지는 그대로 Pages 가 응답한다. CORS 가 필요 없어진다.
+routes = [
+    { pattern = "runlevel.cc/api/*", zone_name = "runlevel.cc" },
+]
+
+[[d1_databases]]
+binding = "runlevel_stats"
+database_name = "runlevel-stats"
+database_id = "9bf63452-1e9f-40a4-af70-b0da60b04ec5"
+
+# 관측은 켜둔다. 수집이 조용히 실패하고 있는 걸 모르는 게 최악이다.
+[observability]
+enabled = true

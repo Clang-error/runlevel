@@ -1,0 +1,45 @@
+id: file-06
+category: 파일 조작
+level: 1
+prompt: |
+  작업 폴더를 정리하시오.
+
+  1. /work/tmpdata 안의 .tmp 파일 2개를 지운다.
+  2. 비어 있는 디렉터리 /work/tmpdata/empty-dir 을 지운다.
+  3. 파일이 들어 있는 디렉터리 /work/oldcache 를 통째로 지운다.
+
+  /work/tmpdata/keep.txt 와 tmpdata 디렉터리 자체는 남겨야 한다.
+
+setup:
+  cwd: /work
+  script: |
+    mkdir -p /work/tmpdata/empty-dir
+    mkdir -p /work/oldcache
+    touch /work/tmpdata/junk1.tmp /work/tmpdata/junk2.tmp
+    printf 'keep me\n' > /work/tmpdata/keep.txt
+    printf 'cache a\n' > /work/oldcache/a.bin
+    printf 'cache b\n' > /work/oldcache/b.bin
+
+check:
+  - desc: tmpdata 에 .tmp 파일이 남아 있지 않음
+    cmd: '[ "$(ls /work/tmpdata/*.tmp 2>/dev/null | wc -l)" = 0 ]'
+  - desc: 빈 디렉터리 empty-dir 이 사라졌음
+    cmd: '! test -e /work/tmpdata/empty-dir'
+  - desc: oldcache 디렉터리가 안의 파일까지 통째로 사라졌음
+    cmd: '! test -e /work/oldcache'
+
+guard:
+  - desc: keep.txt 는 그대로 남아 있음
+    cmd: test -s /work/tmpdata/keep.txt
+  - desc: tmpdata 디렉터리 자체는 남아 있음
+    cmd: test -d /work/tmpdata
+
+hints:
+  - 파일을 지우는 명령은 rm 이다. 여러 개는 * 와일드카드로 한 번에 고를 수 있다.
+  - 디렉터리는 rm 만으로는 안 지워진다. 비어 있으면 rmdir 로 지운다.
+  - 안에 내용이 있는 디렉터리는 rm -r 로 통째로 지운다.
+
+solution: |
+  rm /work/tmpdata/*.tmp
+  rmdir /work/tmpdata/empty-dir
+  rm -r /work/oldcache

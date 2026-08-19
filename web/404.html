@@ -1,0 +1,79 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>404 — runlevel</title>
+<!-- 이 파일이 있어야 Cloudflare Pages 가 없는 주소에 진짜 404 를 준다.
+     없으면 무엇을 요청하든 앱 HTML 이 200 으로 나가고, 검색엔진은 그것을
+     "소프트 404" 로 보고 존재하지도 않는 주소를 계속 긁는다.
+
+     앱과 따로 노는 한 장짜리 페이지다. 스크립트도 외부 파일도 안 쓴다 —
+     404 를 보여주자고 23MB 스냅샷을 받게 할 이유가 없다. -->
+<meta name="robots" content="noindex">
+<style>
+    :root {
+        --bg: #16181d;
+        --fg: #d8dee9;
+        --dim: #6b7280;
+        --accent: #88c0d0;
+        --line: #2b2f38;
+    }
+
+    body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        box-sizing: border-box;
+        background: var(--bg);
+        color: var(--fg);
+        font: 14px/1.7 ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    .box {
+        width: min(520px, 100%);
+    }
+
+    h1 {
+        margin: 0 0 18px;
+        font-size: 15px;
+        font-weight: normal;
+        color: var(--accent);
+    }
+
+    pre {
+        margin: 0 0 20px;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        font: inherit;
+        color: var(--dim);
+        white-space: pre-wrap;
+        word-break: break-all;
+    }
+
+    pre b {
+        color: var(--fg);
+        font-weight: normal;
+    }
+
+    a {
+        display: inline-block;
+        padding: 7px 13px;
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        color: var(--accent);
+        text-decoration: none;
+    }
+
+    a:hover {
+        border-color: var(--accent);
+    }
+</style>
+
+<div class="box">
+    <h1>runlevel</h1>
+    <pre>$ <b>cd</b> 이 주소
+sh: cd: can't cd to 이 주소: No such file or directory</pre>
+    <a href="/">홈으로</a>
+</div>

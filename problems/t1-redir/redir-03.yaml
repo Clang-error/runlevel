@@ -1,0 +1,35 @@
+id: redir-03
+category: 리다이렉션
+level: 2
+prompt: |
+  명령은 정상 결과와 에러 메시지를 서로 다른 통로로 내보낸다.
+  둘 다 화면에 섞여 나오지만, 갈라서 받을 수 있다.
+
+  ls /etc/hostname /work/nope 를 실행하면 앞은 성공하고 뒤는 에러가 난다.
+  이 한 번의 실행에서
+
+  - 정상 결과는 /work/ok.txt 로
+  - 에러 메시지는 /work/err.txt 로
+
+  각각 따로 저장하라. 두 파일 어느 쪽에도 상대방 내용이 섞이면 안 된다.
+
+setup:
+  cwd: /work
+
+check:
+  - desc: ok.txt 에 정상 결과가 들어 있음
+    cmd: grep -q "/etc/hostname" /work/ok.txt
+  - desc: ok.txt 에 에러 메시지가 섞이지 않았음
+    cmd: '[ -f /work/ok.txt ] && ! grep -qi "no such" /work/ok.txt'
+  - desc: err.txt 에 에러 메시지가 들어 있음
+    cmd: grep -qi "no such" /work/err.txt
+  - desc: err.txt 에 정상 결과가 섞이지 않았음
+    cmd: '[ -f /work/err.txt ] && ! grep -q "^/etc/hostname$" /work/err.txt'
+
+hints:
+  - 정상 결과가 나가는 통로를 표준출력, 에러가 나가는 통로를 표준에러라고 한다. 번호는 각각 1번과 2번이다.
+  - '> 는 사실 1> 의 줄임이다. 에러 쪽을 받으려면 2> 를 쓴다.'
+  - '한 명령에 둘 다 붙일 수 있다: ls ... > ok.txt 2> err.txt'
+
+solution: |
+  ls /etc/hostname /work/nope > /work/ok.txt 2> /work/err.txt

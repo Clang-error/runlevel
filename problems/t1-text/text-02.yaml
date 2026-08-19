@@ -1,0 +1,29 @@
+id: text-02
+category: 텍스트 처리
+level: 1
+prompt: |
+  /work/fruits.txt 를 알파벳 순으로 정렬해
+  /work/sorted.txt 로 저장하라.
+
+setup:
+  cwd: /work
+  files:
+    /work/fruits.txt: |
+      cherry
+      apple
+      banana
+      apple
+
+check:
+  - desc: sorted.txt 가 존재함
+    cmd: test -f /work/sorted.txt
+  - desc: 정렬되어 있음
+    cmd: sort -c /work/sorted.txt
+  - desc: 원본과 줄 수가 같음 (지우지 않음)
+    cmd: '[ "$(wc -l < /work/sorted.txt)" = "$(wc -l < /work/fruits.txt)" ]'
+
+hints:
+  - 줄을 정렬하는 명령은 sort 다.
+  - 결과를 파일로 보내려면 리다이렉션 > 을 쓴다.
+
+solution: sort /work/fruits.txt > /work/sorted.txt

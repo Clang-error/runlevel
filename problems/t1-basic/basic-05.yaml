@@ -1,0 +1,35 @@
+id: basic-05
+category: 기본 탐색
+level: 2
+prompt: |
+  /work/data 아래에 디렉터리 3개가 있다.
+  용량을 가장 많이 차지하는 디렉터리의 이름만 /work/answer.txt 에 저장하라.
+
+  경로가 아니라 이름만 적는다. (예: docs)
+
+setup:
+  cwd: /work
+  script: |
+    mkdir -p /work/data/docs /work/data/images /work/data/tmp
+    head -c 2000  /dev/zero > /work/data/docs/manual.txt
+    head -c 40000 /dev/zero > /work/data/images/cover.png
+    head -c 12000 /dev/zero > /work/data/tmp/cache.bin
+
+check:
+  - desc: answer.txt 가 생성되었음
+    cmd: test -f /work/answer.txt
+  - desc: 가장 큰 디렉터리 이름(images)이 적혀 있음
+    cmd: '[ "$(cat /work/answer.txt)" = images ]'
+
+guard:
+  - desc: data 아래 디렉터리 3개는 그대로임
+    cmd: '[ "$(ls /work/data | wc -l)" = 3 ]'
+
+hints:
+  - 디렉터리가 차지하는 용량은 du 로 본다. -s 를 붙이면 합계 한 줄만 나온다.
+  - du -s /work/data/* 처럼 쓰면 세 개를 한 번에 비교할 수 있다. -h 를 붙이면 사람이 읽기 쉬운 단위로 나온다.
+  - '결과를 보고 이름을 echo images > /work/answer.txt 로 적으면 된다.'
+
+solution: |
+  du -sh /work/data/*
+  echo images > /work/answer.txt

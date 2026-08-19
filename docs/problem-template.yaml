@@ -1,0 +1,41 @@
+# 새 문제 틀. problems/<카테고리>/<id>.yaml 로 복사해서 채운다.
+# 만드는 법은 docs/making-problems.md 참고.
+#
+#   cp docs/problem-template.yaml problems/t1-text/text-07.yaml
+#   (채운 뒤)
+#   cd spike && node test-problems.mjs text-07
+
+id: text-07                  # 파일명과 같게
+category: 텍스트 처리          # 화면에 표시될 분류
+level: 2                     # 1~5
+
+prompt: |
+  무엇을 어디에 만들라고 구체적으로 쓴다.
+  경로는 절대경로로 적어주는 편이 헷갈리지 않는다.
+
+setup:
+  cwd: /work
+  # user: student            # 권한 문제라면 반드시. 기본값은 root
+  files:
+    /work/input.txt: |
+      첫 줄
+      둘째 줄
+  # script: |                # files 로 안 되는 것 (디렉터리, 권한 비트, 망가진 설정)
+  #   mkdir -p /work/sub
+  #   chmod 600 /work/input.txt
+
+check:                       # 목표. 풀기 전에는 전부 실패해야 한다
+  - desc: output.txt 가 존재한다
+    cmd: test -s /work/output.txt
+  - desc: 2줄이다
+    cmd: '[ "$(wc -l < /work/output.txt)" = 2 ]'
+
+# guard:                     # 전제. 처음부터 참이고 깨지면 안 되는 것
+#   - desc: 원본은 그대로다
+#     cmd: test -f /work/input.txt
+
+hints:
+  - 방향만 알려주는 첫 힌트
+  - 거의 답에 가까운 마지막 힌트
+
+solution: cp /work/input.txt /work/output.txt      # 필수. 자동 테스트에 쓰인다

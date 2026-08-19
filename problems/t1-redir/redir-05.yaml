@@ -1,0 +1,33 @@
+id: redir-05
+category: 리다이렉션
+level: 2
+prompt: |
+  /work/photos 안의 파일 목록을 두 가지로 남겨야 한다.
+
+  - 목록 그대로를 /work/list.txt 에
+  - 그 개수(숫자만)를 /work/count.txt 에
+
+  목록을 두 번 만들지 말고, 한 번 흘려보내면서 중간에 파일로 받아 적는 방식으로 하라.
+
+setup:
+  cwd: /work
+  script: |
+    mkdir -p /work/photos
+    cd /work/photos
+    touch a.jpg b.jpg c.png d.png e.gif
+
+check:
+  - desc: list.txt 에 파일 5개가 적혀 있음
+    cmd: '[ "$(wc -l < /work/list.txt)" = 5 ]'
+  - desc: list.txt 에 실제 파일 이름이 들어 있음
+    cmd: grep -q "^a.jpg$" /work/list.txt && grep -q "^e.gif$" /work/list.txt
+  - desc: count.txt 에 개수 5 만 적혀 있음
+    cmd: '[ "$(tr -d " " < /work/count.txt)" = 5 ]'
+
+hints:
+  - 파이프(|)로 넘기면 중간 결과는 화면에도 파일에도 남지 않는다.
+  - tee 는 흘러가는 내용을 파일에 적어두면서 그대로 다음으로도 흘려보낸다. T자 배관에서 온 이름이다.
+  - 'ls /work/photos | tee /work/list.txt | wc -l > /work/count.txt'
+
+solution: |
+  ls /work/photos | tee /work/list.txt | wc -l > /work/count.txt

@@ -1,0 +1,32 @@
+id: file-01
+category: 파일 조작
+level: 1
+prompt: |
+  /work 안에 logs 디렉터리를 만들고,
+  확장자가 .log 인 파일을 전부 그 안으로 옮기시오.
+
+setup:
+  cwd: /work
+  script: |
+    cd /work
+    touch app.log error.log readme.txt data.csv
+
+check:
+  - desc: logs 디렉터리가 생성되었음
+    cmd: test -d /work/logs
+  - desc: .log 파일 2개가 logs 안에 있음
+    cmd: '[ "$(ls /work/logs/*.log 2>/dev/null | wc -l)" = 2 ]'
+  - desc: /work 에 .log 파일이 남아있지 않음
+    cmd: '[ "$(ls /work/*.log 2>/dev/null | wc -l)" = 0 ]'
+
+guard:
+  - desc: 다른 파일은 건드리지 않았음
+    cmd: test -f /work/readme.txt && test -f /work/data.csv
+
+hints:
+  - 디렉터리를 만드는 명령은 mkdir 이다.
+  - 여러 파일을 한 번에 옮길 때는 * 와일드카드를 사용.
+
+solution: |
+  mkdir logs
+  mv *.log logs/

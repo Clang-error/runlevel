@@ -1,0 +1,20 @@
+RAM 128MB 로 부팅 성공 (7.3s)
+
+[PASS] 메모리
+       total        used        free      shared  buff/cache   available
+       Mem:             90          11          71           0           9          75
+
+[PASS] 도구 동작
+       mke2fs 1.47.3 (8-Jul-2025)
+       GNU Awk 5.3.2, API 4.0
+
+[PASS] text-03 채점
+       µü
+
+스냅샷 저장 중...
+
+=== 두 방식 비교 ===
+A. 부팅 방식   엔진 2.3MB + 커널 8.2MB + initramfs 14.1MB + 디스크 9.8MB
+               = 34.5MB  (부팅 7초)
+B. 스냅샷 방식 엔진 2.3MB + 스냅샷 NaNMB (raw 220.0MB)
+               = 43.8MB  (부팅 없음)

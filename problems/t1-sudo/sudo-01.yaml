@@ -1,0 +1,34 @@
+id: sudo-01
+category: sudo
+level: 3
+prompt: |
+  /root/flag.txt 를 읽어 그 내용을 /work/flag.txt 에 저장하라.
+
+  당신은 student 계정이라 /root 에 바로 접근할 수 없다.
+  sudo 권한은 이미 부여되어 있다.
+
+setup:
+  cwd: /work
+  # 권한 부여를 setup 스크립트에 손으로 적으면 화면 배지가 그걸 모른다.
+  # 실제로 sudo-01 만 '사용 가능' 표시가 안 뜨고 있었다.
+  sudo: true
+  script: |
+    echo 'runlevel-root-only' > /root/flag.txt
+    chmod 600 /root/flag.txt
+
+check:
+  - desc: /work/flag.txt 가 존재함
+    cmd: test -s /work/flag.txt
+  - desc: 내용이 원본과 같음
+    cmd: cmp -s /root/flag.txt /work/flag.txt
+
+guard:
+  - desc: 원본 권한은 그대로임 (600)
+    cmd: '[ "$(stat -c %a /root/flag.txt)" = 600 ]'
+
+hints:
+  - 그냥 cat /root/flag.txt 를 하면 Permission denied 가 난다.
+  - 다른 사용자 권한으로 명령을 실행하려면 sudo 를 앞에 붙인다.
+  - sudo 로 읽은 내용을 리다이렉션하려면 sudo cat ... > 파일 형태를 쓴다.
+
+solution: sudo cat /root/flag.txt > /work/flag.txt

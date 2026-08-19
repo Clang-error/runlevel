@@ -1,0 +1,31 @@
+id: perm-06
+category: 권한
+level: 1
+prompt: |
+  /work/hello.sh 를 실행하려 하면 Permission denied 가 난다.
+  chmod 로 실행 권한을 줘서 실행되게 만들어라.
+
+  권한은 755 (소유자 rwx, 그룹과 기타 사용자는 r-x) 로 맞춘다.
+
+setup:
+  cwd: /work
+  user: student
+  files:
+    /work/hello.sh: |
+      #!/bin/bash
+      echo hello-world
+  script: |
+    chmod 644 /work/hello.sh
+
+check:
+  - desc: 권한이 755 임
+    cmd: '[ "$(stat -c %a /work/hello.sh)" = 755 ]'
+  - desc: 실제로 실행됨
+    cmd: su -s /bin/bash student -c '/work/hello.sh' 2>/dev/null | grep -q hello-world
+
+hints:
+  - ls -l /work/hello.sh 로 지금 권한을 먼저 확인하라.
+  - chmod 는 숫자 세 자리로 권한을 준다. 순서는 소유자, 그룹, 기타다.
+  - r=4, w=2, x=1 을 더한다. rwx=7, r-x=5 이므로 755 다.
+
+solution: chmod 755 /work/hello.sh

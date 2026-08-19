@@ -1,0 +1,43 @@
+id: script-01
+category: 셸 스크립트
+level: 3
+prompt: |
+  /work/count.sh 스크립트를 만들어라.
+
+  인자로 받은 디렉터리 안에 파일이 몇 개인지 숫자만 출력해야 한다.
+  실행 권한도 있어야 한다.
+
+  예)  ./count.sh /work/sample   ->   3
+
+setup:
+  # setup 이 소유자를 일부러 지정한다. 자동 chown 이 그걸 덮으면 문제가 성립하지 않는다
+  keepOwner: true
+  cwd: /work
+  user: student
+  script: |
+    mkdir -p /work/sample /work/other
+    touch /work/sample/a.txt /work/sample/b.txt /work/sample/c.log
+    touch /work/other/x.txt
+    chown -R student /work/sample /work/other
+
+check:
+  - desc: count.sh 가 실행 가능함
+    cmd: test -x /work/count.sh
+  - desc: /work/sample 에 3 을 출력함
+    cmd: '[ "$(/work/count.sh /work/sample 2>/dev/null | tr -dc 0-9)" = 3 ]'
+  - desc: 다른 디렉터리에도 맞게 동작함 (인자를 실제로 씀)
+    cmd: '[ "$(/work/count.sh /work/other 2>/dev/null | tr -dc 0-9)" = 1 ]'
+
+hints:
+  - 편집은 vi 로 해도 되고, cat > count.sh <<'EOF' ... EOF 로 한 번에 써도 된다.
+  - 첫 줄에 #!/bin/bash 를 넣어야 스크립트로 실행된다.
+  - 첫 번째 인자는 $1 이다.
+  - 개수는 ls "$1" | wc -l 로 셀 수 있다.
+  - 다 만들었으면 chmod +x 로 실행 권한을 준다.
+
+solution: |
+  cat > /work/count.sh <<'SH'
+  #!/bin/bash
+  ls "$1" | wc -l
+  SH
+  chmod +x /work/count.sh
