@@ -28,7 +28,7 @@ guard:
 hints:
   - 디렉터리가 차지하는 용량은 du 로 본다. -s 를 붙이면 합계 한 줄만 나온다.
   - du -s /work/data/* 처럼 쓰면 세 개를 한 번에 비교할 수 있다. -h 를 붙이면 사람이 읽기 쉬운 단위로 나온다.
-  - '결과를 보고 이름을 echo images > /work/answer.txt 로 적으면 된다.'
+  - '가장 큰 것을 찾았으면 그 이름만 echo 로 내보내 > 로 answer.txt 에 담는다. 경로가 아니라 이름만이다.'
 
 solution: |
   du -sh /work/data/*

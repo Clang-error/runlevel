@@ -31,7 +31,8 @@ guard:
 hints:
   - 줄·단어·글자 수를 한 번에 세어주는 명령이 있다. wc 다.
   - 옵션 없이 쓰면 세 가지가 한꺼번에 나온다. -l 은 줄, -w 는 단어다.
-  - 'wc -l /work/essay.txt > /work/lines.txt 처럼 결과를 파일로 보낸다.'
+  - '세는 것과 저장하는 것은 별개다. wc 로 센 결과를 > 로 각각 다른 파일에 보낸다.
+    essay.txt 는 읽기만 하는 원본이고, lines.txt 와 words.txt 가 만들 결과물이다.'
 
 solution: |
   wc -l < /work/essay.txt > /work/lines.txt

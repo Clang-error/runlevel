@@ -34,6 +34,6 @@ guard:
 hints:
   - 정렬하는 명령은 sort 다. 다만 기본값은 글자 순서로 비교한다.
   - 숫자로 비교하게 만드는 옵션이 하나 있다.
-  - 'sort -n /work/scores.txt > /work/rank.txt'
+  - '-n 을 붙여 정렬한 결과를 > 로 rank.txt 에 보낸다. 원본은 그대로 둔다.'
 
 solution: sort -n /work/scores.txt > /work/rank.txt

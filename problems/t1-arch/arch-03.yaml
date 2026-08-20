@@ -29,8 +29,8 @@ guard:
 
 hints:
   - 링크를 만드는 명령은 ln 이다. 심볼릭 링크는 -s 를 붙인다.
-  - 'ln -s 대상 링크이름 순서다. 가리킬 곳을 먼저, 만들 이름을 나중에 적는다.'
-  - 'ln -s /work/releases/v2 /work/current'
+  - ln -s 대상 링크이름 순서다. 가리킬 곳을 먼저, 만들 이름을 나중에 적는다.
+  - '가리킬 곳은 releases 안의 v2 이고, 만들 이름은 /work/current 다. 그 순서로 적는다.'
 
 solution: |
   ln -s /work/releases/v2 /work/current

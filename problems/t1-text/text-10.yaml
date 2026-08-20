@@ -35,6 +35,7 @@ guard:
 hints:
   - 파일 내용을 출력하는 cat 의 결과를 다른 파일로 보내면 된다.
   - '> 는 파일을 통째로 덮어쓴다. 원래 줄을 남기려면 다른 기호가 필요하다.'
-  - '이어붙이기는 >> 다. cat /work/extra.txt >> /work/todo.txt'
+  - 'cat 으로 extra.txt 를 읽어서 >> 로 todo.txt 뒤에 붙인다.
+    > 를 쓰면 todo.txt 가 통째로 덮여서 원래 줄이 사라진다.'
 
 solution: cat /work/extra.txt >> /work/todo.txt

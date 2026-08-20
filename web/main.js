@@ -609,7 +609,6 @@ async function openFree() {
 
 $("homeFree").onclick = () => openFree();
 $("freeReset").onclick = () => seedPlayground(false).then(() => refreshTree({ markChanges: false }));
-$("freeFiles").onclick = () => setFilesVisible($("wrap").classList.contains("no-files"));
 
 $("cmdSearch").oninput = (e) => renderCommands(e.target.value);
 $("probSearch").oninput = (e) => { probQuery = e.target.value; renderHome(); };
@@ -908,11 +907,13 @@ $("solutionBtn").onclick = () => {
 // 파일트리 접기/펴기. 터미널을 넓게 쓰고 싶을 때가 있다.
 function setFilesVisible(on) {
     $("wrap").classList.toggle("no-files", !on);
-    // 같은 일을 하는 버튼이 두 곳에 있다 (문제 화면, 자유 터미널).
-    // 한쪽만 갱신했더니 자유 터미널 버튼이 "파일 보기" 에 붙박여 있었다.
-    for (const id of ["filesBtn", "freeFiles"]) {
-        $(id).textContent = on ? "파일 숨기기" : "파일 보기";
-        $(id).classList.toggle("on", on);
+    // 같은 버튼이 세 모드(문제·자유 터미널·사전)에 하나씩 있다.
+    // 예전에는 id 를 손으로 나열해 갱신했는데, 한쪽을 빠뜨려 자유 터미널 버튼이
+    // "파일 보기" 에 붙박였고 사전 모드에는 버튼 자체가 없었다.
+    // 클래스로 전부 잡으면 모드를 더 만들어도 여기를 고칠 일이 없다.
+    for (const b of document.querySelectorAll(".filesToggle")) {
+        b.textContent = on ? "파일 숨기기" : "파일 보기";
+        b.classList.toggle("on", on);
     }
     pref.set(on);
     // 터미널 폭이 바뀌었으니 다시 맞추고 게스트에도 알린다 (안 그러면 vi 가 어긋난다).
@@ -922,7 +923,9 @@ function setFilesVisible(on) {
         vm.setTermSize(term.cols, term.rows);
     }
 }
-$("filesBtn").onclick = () => setFilesVisible($("wrap").classList.contains("no-files"));
+for (const b of document.querySelectorAll(".filesToggle")) {
+    b.onclick = () => setFilesVisible($("wrap").classList.contains("no-files"));
+}
 
 // 문제를 풀다 막혔을 때 홈으로 나가지 않고 왼쪽 패널에서 바로 찾아본다.
 // 홈의 기본명령어 탭과 같은 카드를 쓰되 목차(cmdNav)는 안 만든다 —
@@ -943,8 +946,10 @@ function renderCmdFind(q = "") {
 // 안 알리면 vi 나 top 같은 화면이 옛 폭으로 그려져 어긋난다.
 function setCmdsVisible(on) {
     $("wrap").classList.toggle("no-cmds", !on);
-    $("cmdFindBtn").textContent = on ? "명령어 닫기" : "명령어 찾기";
-    $("cmdFindBtn").classList.toggle("on", on);
+    for (const b of document.querySelectorAll(".cmdsToggle")) {
+        b.textContent = on ? "명령어 닫기" : "명령어 찾기";
+        b.classList.toggle("on", on);
+    }
     cmdsPref.set(on);
     if (on && !$("cmdFindList").children.length) renderCmdFind($("cmdFindQ").value);
     if (attached) {
@@ -953,7 +958,9 @@ function setCmdsVisible(on) {
     }
     if (on) $("cmdFindQ").focus();
 }
-$("cmdFindBtn").onclick = () => setCmdsVisible($("wrap").classList.contains("no-cmds"));
+for (const b of document.querySelectorAll(".cmdsToggle")) {
+    b.onclick = () => setCmdsVisible($("wrap").classList.contains("no-cmds"));
+}
 $("cmdFindQ").oninput = (e) => renderCmdFind(e.target.value);
 
 // 문제 창 접기. 터미널만 크게 쓰고 싶을 때가 있다.
@@ -1686,8 +1693,9 @@ async function selftest() {
         const none = cards() === 0 && !$("cmdFindNone").hidden;
         renderCmdFind("");
         setCmdsVisible(false);
+        const btns = [...document.querySelectorAll(".cmdsToggle")];
         const closed = $("wrap").classList.contains("no-cmds")
-            && $("cmdFindBtn").textContent === "명령어 찾기";
+            && btns.length > 0 && btns.every((b) => b.textContent === "명령어 찾기");
         setCmdsVisible(origCmds);
         record("문제 화면에서 명령어 찾기", opened && noTry && bySum && none && closed,
             `열림 ${opened} · 쳐보기없음 ${noTry} · 설명검색 ${bySum} · 빈결과 ${none} · 닫힘 ${closed}`);

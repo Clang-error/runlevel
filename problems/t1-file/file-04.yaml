@@ -35,7 +35,7 @@ guard:
 hints:
   - 파일을 복사하는 명령은 cp 다.
   - cp 는 디렉터리를 그냥은 복사하지 못한다. 안쪽까지 통째로 복사하려면 옵션이 필요하다.
-  - 'cp -r 원본디렉터리 대상이름 이다. cp -r /work/src /work/backup 처럼 쓴다.'
+  - '디렉터리를 통째로 복사할 때는 -r 을 붙인다. 원본을 먼저, 만들 이름을 나중에 적는다.'
 
 solution: |
   cp /work/src/readme.txt /work/readme-backup.txt

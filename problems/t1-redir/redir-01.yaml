@@ -21,7 +21,7 @@ check:
 hints:
   - 계정 이름은 whoami, 현재 경로는 pwd 로 알 수 있다.
   - '명령 > 파일 형태로 쓰면 화면 대신 파일에 담긴다. 파일이 없으면 새로 만들어진다.'
-  - 'whoami > /work/who.txt 처럼 쓴다.'
+  - '명령을 먼저 쓰고 > 뒤에 저장할 파일 경로를 적는다. 두 줄을 따로 실행하면 된다.'
 
 solution: |
   whoami > /work/who.txt

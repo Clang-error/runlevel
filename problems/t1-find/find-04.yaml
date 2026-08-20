@@ -30,6 +30,6 @@ check:
 hints:
   - 파일을 이름으로 찾는 명령은 find 다. 찾을 위치를 먼저 적는다.
   - 이름 조건은 -name 뒤에 쓴다. 와일드카드는 따옴표로 감싼다. -name "*.txt"
-  - find /work/docs -name "*.txt" 의 결과를 > 로 파일에 저장하면 된다.
+  - '찾을 곳을 /work/docs 로 좁히고 -name 으로 확장자를 걸러, 그 결과를 > 로 파일에 담는다.'
 
 solution: find /work/docs -name "*.txt" > /work/found.txt

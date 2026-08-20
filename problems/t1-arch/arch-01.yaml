@@ -32,7 +32,8 @@ guard:
 hints:
   - 여러 파일을 하나로 묶는 명령은 tar 다. 압축은 gzip 이 맡는다.
   - 'tar 의 옵션 세 개를 기억하면 된다. c 는 만들기(create), z 는 gzip 압축, f 는 파일 이름 지정이다.'
-  - 'tar -czf /work/site.tar.gz -C /work site 처럼 쓴다. -C 는 그 디렉터리로 들어가서 묶으라는 뜻이다.'
+  - '-C 로 /work 에 들어간 다음 site 를 묶으면, 묶음 안의 경로가 site/ 부터 시작한다.
+    -C 없이 전체 경로를 적으면 work/site/... 처럼 위 디렉터리까지 딸려 들어간다.'
 
 solution: |
   tar -czf /work/site.tar.gz -C /work site

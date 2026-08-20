@@ -35,7 +35,7 @@ guard:
 hints:
   - 'tar 의 t 는 목록 보기(list), x 는 풀기(extract)다. z 와 f 는 묶을 때와 똑같이 쓴다.'
   - '목록은 tar -tzf 파일 로 본다. 화면에 나온 것을 > 로 파일에 담으면 된다.'
-  - '풀 때 -C 로 목적지를 정한다: mkdir restore 후 tar -xzf /work/backup.tar.gz -C /work/restore'
+  - '풀기 전에 restore 디렉터리를 먼저 만들어야 한다. 그다음 -xzf 로 풀면서 -C 로 그곳을 목적지로 준다.'
 
 solution: |
   tar -tzf /work/backup.tar.gz > /work/list.txt

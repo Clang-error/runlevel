@@ -318,7 +318,7 @@ export const COMMANDS = [
             ["NF", "이 줄에 칸이 몇 개인지 알려줍니다"],
             ["END { }", "다 읽은 뒤 한 번 실행합니다 (합계를 낼 때 씁니다)"],
         ],
-        ex: ["awk -F: '{print $1}' /etc/passwd", "awk '{n++} END {print n}' sample.txt"],
+        ex: ["awk -F, '{print $1}' /etc/passwd", "awk '{n++} END {print n}' sample.txt"],
     },
     {
         name: "tee", cat: "텍스트 처리", sum: "화면에도 보여주고 파일에도 저장합니다",

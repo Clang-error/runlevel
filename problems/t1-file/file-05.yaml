@@ -33,7 +33,8 @@ guard:
 hints:
   - 이름 바꾸기도 옮기기도 mv 로 한다.
   - 'mv 옛이름 새이름 이면 이름이 바뀌고, mv 파일 디렉터리/ 면 그 안으로 들어간다.'
-  - mv /work/report-draft.txt /work/report-final.txt 그리고 mv /work/notes.txt /work/archive/
+  - '두 번 다 mv 다. 첫 번째는 대상 자리에 새 파일 이름을 적고,
+    두 번째는 대상 자리에 디렉터리를 적는다 — 그 차이가 이름 바꾸기와 옮기기를 가른다.'
 
 solution: |
   mv /work/report-draft.txt /work/report-final.txt

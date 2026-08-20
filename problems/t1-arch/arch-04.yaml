@@ -33,7 +33,7 @@ guard:
 hints:
   - ln 은 옵션 없이 쓰면 하드링크, -s 를 붙이면 심볼릭 링크를 만든다.
   - 'inode 번호와 링크 수는 stat -c %i 와 stat -c %h 로 확인할 수 있다.'
-  - 'ln /work/data.txt /work/hard.txt 와 ln -s /work/data.txt /work/soft.txt'
+  - '둘 다 원본은 data.txt 로 같고 만들 이름만 다르다. -s 를 붙이냐 마냐가 두 링크를 가른다.'
 
 solution: |
   ln /work/data.txt /work/hard.txt

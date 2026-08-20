@@ -27,7 +27,8 @@ check:
 hints:
   - 파이프(|)로 넘기면 중간 결과는 화면에도 파일에도 남지 않는다.
   - tee 는 흘러가는 내용을 파일에 적어두면서 그대로 다음으로도 흘려보낸다. T자 배관에서 온 이름이다.
-  - 'ls /work/photos | tee /work/list.txt | wc -l > /work/count.txt'
+  - '목록을 tee 로 list.txt 에 받아두면 같은 내용이 그대로 다음으로 흘러간다.
+    그것을 wc -l 로 세어 다시 > 로 count.txt 에 담으면 파이프 하나로 끝난다.'
 
 solution: |
   ls /work/photos | tee /work/list.txt | wc -l > /work/count.txt

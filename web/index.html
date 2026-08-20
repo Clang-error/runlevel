@@ -1393,9 +1393,9 @@
         }
 
         #files,
-        #filesBtn,
         #cmds,
-        #cmdFindBtn {
+        .filesToggle,
+        .cmdsToggle {
             display: none;
         }
     }
@@ -1506,7 +1506,7 @@
 
                 <div id="hints"></div>
                 <div class="btns">
-                    <button id="filesBtn">파일 보기</button>
+                    <button class="filesToggle">파일 보기</button>
                     <button id="hintBtn">힌트</button>
                     <!-- "초기화" 만 적으면 시스템까지 되돌아간다고 읽힌다.
                          실제로는 문제를 여는 절차(applySetup)를 다시 돌릴 뿐이라
@@ -1515,7 +1515,7 @@
                         title="/work 와 문제 파일만 처음 상태로 되돌립니다. 지워진 시스템 파일은 복구되지 않습니다 — 그건 새로고침이 필요합니다.">문제
                         되돌리기</button>
                     <button id="solutionBtn">정답 보기</button>
-                    <button id="cmdFindBtn">명령어 찾기</button>
+                    <button class="cmdsToggle">명령어 찾기</button>
                 </div>
             </div>
             <!-- 명령어를 익히는 모드. 문제 화면의 껍데기를 그대로 쓴다 —
@@ -1523,6 +1523,10 @@
             <div id="cmdView" hidden>
                 <div id="cmdViewBody"></div>
                 <p class="cmd-hint">예시를 누르면 터미널에 그대로 쳐집니다.</p>
+                <div class="btns">
+                    <button class="filesToggle">파일 보기</button>
+                    <button class="cmdsToggle">명령어 찾기</button>
+                </div>
             </div>
 
             <!-- 아무것도 안 열고 셸만 쓰는 모드 -->
@@ -1532,7 +1536,8 @@
                 </p>
                 <div class="btns">
                     <button id="freeReset">/work 비우기</button>
-                    <button id="freeFiles">파일 보기</button>
+                    <button class="filesToggle">파일 보기</button>
+                    <button class="cmdsToggle">명령어 찾기</button>
                 </div>
             </div>
 
