@@ -16,6 +16,7 @@ import path from "node:path";
 import zlib from "node:zlib";
 import { pipeline } from "node:stream/promises";
 import { fileURLToPath } from "node:url";
+import { writeCommandPages } from "./cmdpages.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const DIST = path.join(here, "dist");
@@ -39,17 +40,32 @@ fs.copyFileSync(path.join(here, "robots.txt"), path.join(DIST, "robots.txt"));
 // 응답해서, 검색엔진이 존재하지 않는 주소를 끝없이 긁는다.
 fs.copyFileSync(path.join(here, "404.html"), path.join(DIST, "404.html"));
 
+// --- 명령어 사전을 정적 페이지로 ---
+//
+// 앱은 주소가 / 하나뿐이라 명령어 67개가 전부 같은 URL 안에 있다. 검색 순위는
+// URL 단위로 매겨지므로 그대로는 "리눅스 tar 옵션" 같은 검색에 걸릴 자리가 없다.
+// 설명은 이미 commands.js 에 다 있으니, 그것을 읽어 페이지로만 굳힌다.
+//
+// .js 파일이라 그냥 import 하면 CommonJS 로 읽혀 export 에서 죽는다.
+// lint-commands.mjs 와 같은 방법으로 소스를 data URL 로 감싸 모듈로 불러온다.
+const cmdSrc = fs.readFileSync(path.join(here, "commands.js"), "utf8");
+const { COMMANDS, CATEGORIES } = await import(
+    "data:text/javascript;base64," + Buffer.from(cmdSrc).toString("base64"));
+const { urls: cmdUrls, skipped } = writeCommandPages(DIST, COMMANDS, CATEGORIES);
+console.log(`명령어 페이지 ${cmdUrls.length}개`
+    + (skipped.length ? `  (주소로 못 만드는 것 제외: ${skipped.join(" ")})` : ""));
+
 // 사이트맵은 빌드할 때 만든다. 파일로 두면 lastmod 가 손대는 것을 잊는 순간
 // 거짓말이 되는데, 크롤러에게 "안 바뀌었다"고 말하는 셈이라 다시 안 온다.
-// 페이지는 하나뿐이다 — 홈도 문제도 전부 같은 주소 위에서 그려진다.
 const today = new Date().toISOString().slice(0, 10);
+const allUrls = ["https://runlevel.cc/", ...cmdUrls];
 fs.writeFileSync(path.join(DIST, "sitemap.xml"),
     `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    <url>
-        <loc>https://runlevel.cc/</loc>
+${allUrls.map((u) => `    <url>
+        <loc>${u}</loc>
         <lastmod>${today}</lastmod>
-    </url>
+    </url>`).join("\n")}
 </urlset>
 `);
 fs.cpSync(path.join(here, "vendor"), path.join(DIST, "vendor"), { recursive: true });
@@ -222,10 +238,14 @@ const walk = (d, acc = { n: 0 }) => {
 
 const bootOnly = size("img/boot/vmlinuz-lts") + size("img/boot/initramfs-min")
                + size("img/dotslash-64.img.gz");
+// 검색용 명령어 페이지는 앱을 여는 사람이 받는 것이 아니다.
+// 빼지 않으면 "방문자가 받는 것" 이 실제보다 부풀어 거짓말이 된다.
+const cmdPages = walk(path.join(DIST, "cmd"));
 const total = walk(DIST);
-const app = total - bootOnly - size("img/state.bin.zst");
+const app = total - bootOnly - cmdPages - size("img/state.bin.zst");
 
 console.log(`dist/ 생성 완료 — 문제 ${index.length}개`);
+console.log(`  명령어 페이지        ${mb(cmdPages)}   (검색용. 앱 방문자는 안 받는다)`);
 console.log(`  기본 (스냅샷 복원)   ${mb(app + size("img/state.bin.zst"))}   <- 방문자가 받는 것`);
 console.log(`    앱·엔진           ${mb(app)}`);
 console.log(`    스냅샷            ${mb(size("img/state.bin.zst"))}`);
