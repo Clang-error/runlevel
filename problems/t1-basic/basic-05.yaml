@@ -18,7 +18,7 @@ setup:
 check:
   - desc: answer.txt 가 생성되었음
     cmd: test -f /work/answer.txt
-  - desc: 가장 큰 디렉터리 이름(images)이 적혀 있음
+  - desc: 가장 큰 디렉터리 이름이 적혀 있음
     cmd: '[ "$(cat /work/answer.txt)" = images ]'
 
 guard:
