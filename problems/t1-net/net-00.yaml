@@ -1,0 +1,34 @@
+id: net-00
+category: 네트워크
+level: 2
+prompt: |
+  이 서버에 어떤 IPv4 주소가 붙어 있는지 확인하려 한다.
+
+  주소 목록을 한 줄에 하나씩 나오는 형태로 뽑아
+  /work/addr.txt 에 저장하라. 출력을 가공하지 말고 그대로 저장한다.
+
+setup:
+  cwd: /work
+  script: |
+    netlab reset
+    netlab add 10.0.0.5 host-a
+    netlab add 192.168.50.4 host-b
+
+check:
+  - desc: addr.txt 가 존재함
+    cmd: test -s /work/addr.txt
+  - desc: 3줄임 (주소 하나가 한 줄)
+    cmd: '[ "$(wc -l < /work/addr.txt)" = 3 ]'
+  - desc: 붙어 있는 두 주소가 들어 있음
+    cmd: grep -q 10.0.0.5 /work/addr.txt && grep -q 192.168.50.4 /work/addr.txt
+  - desc: 루프백(127.0.0.1)까지 출력 그대로 들어 있음
+    cmd: grep -q 127.0.0.1 /work/addr.txt
+
+hints:
+  - 주소를 보는 명령은 ip addr 다. 먼저 그냥 쳐서 어떻게 나오는지 보라.
+  - 출력이 IPv6 까지 섞여 여러 줄로 흩어진다. IPv4 만 보려면 ip -4 addr 를 쓴다.
+  - 주소 하나가 한 줄로 나오게 하려면 -o 를 붙인다 - ip -4 -o addr
+  - 화면 대신 파일로 보내는 것은 > 다.
+
+solution: |
+  ip -4 -o addr > /work/addr.txt

@@ -1,6 +1,6 @@
 id: net-01
 category: 네트워크
-level: 2
+level: 3
 prompt: |
   이 서버에는 IPv4 주소가 여러 개 붙어 있다.
 
