@@ -334,7 +334,11 @@ export const COMMANDS = [
             ["-I {}", "{} 자리에 하나씩 꽂아 넣습니다"],
             ["-0", "이름에 공백이 있을 때 씁니다. find -print0 과 짝입니다"],
         ],
-        ex: ["ls | xargs -n 1 echo 파일:"],
+        ex: [
+            "ls | xargs -n 1 echo 파일:",
+            "find /work -name '*.txt' -print0 | xargs -0 wc -l",
+            "ls /work | xargs -I{} echo '{} 확인'",
+        ],
     },
 
     // ── 검색 ──────────────────────────────────────────────────

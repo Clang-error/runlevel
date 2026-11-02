@@ -21,7 +21,7 @@ setup:
 check:
   - desc: top.txt 가 존재함
     cmd: test -s /work/top.txt
-  - desc: 10.0.0.5 만 들어있음
+  - desc: 가장 많이 요청한 IP 만 들어있음
     cmd: '[ "$(tr -d "[:space:]" < /work/top.txt)" = 10.0.0.5 ]'
 
 hints:

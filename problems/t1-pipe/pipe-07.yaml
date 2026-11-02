@@ -1,0 +1,39 @@
+id: pipe-07
+category: 파이프라인
+level: 3
+prompt: |
+  /work/uploads 안의 .sh 파일에 모두 실행 권한을 붙여라.
+  .txt 파일은 건드리지 마라.
+
+  파일을 찾는 명령의 결과를 파이프로 넘겨서 처리한다.
+  이름에 공백이 있는 파일이 섞여 있으니 주의해라.
+
+setup:
+  cwd: /work
+  script: |
+    mkdir -p /work/uploads
+    cd /work/uploads
+    touch 'deploy script.sh' backup.sh 'my old build.sh' notes.txt 'read me.txt'
+    chmod 644 /work/uploads/*
+
+check:
+  - desc: 공백 없는 backup.sh 에 실행 권한이 붙음
+    cmd: test -x /work/uploads/backup.sh
+  - desc: 이름에 공백이 있는 .sh 파일에도 실행 권한이 붙음
+    cmd: test -x "/work/uploads/deploy script.sh" && test -x "/work/uploads/my old build.sh"
+  - desc: .sh 파일 3개가 모두 실행 가능함
+    cmd: '[ "$(find /work/uploads -name "*.sh" -perm -u+x | wc -l)" = 3 ]'
+
+guard:
+  - desc: .txt 파일에는 실행 권한이 붙지 않음
+    cmd: '[ "$(find /work/uploads -name "*.txt" -perm -u+x | wc -l)" = 0 ]'
+  - desc: 파일 5개가 그대로 있음
+    cmd: '[ "$(ls -A /work/uploads | wc -l)" = 5 ]'
+
+hints:
+  - xargs 는 흘러들어온 값을 줄바꿈뿐 아니라 공백에서도 잘라 인자로 만든다. 그래서 "my old build.sh" 는 세 개의 인자가 되고, 그런 파일은 없다.
+  - find 의 -print0 은 결과를 줄바꿈 대신 널 문자로 구분해서 내보낸다. 공백은 파일 이름의 일부로 남는다.
+  - 'xargs -0 은 널 문자로 구분된 입력을 받는다. 둘은 항상 짝으로 쓴다: find ... -print0 | xargs -0 명령'
+
+solution: |
+  find /work/uploads -name '*.sh' -print0 | xargs -0 chmod +x

@@ -4,10 +4,14 @@ level: 3
 prompt: |
   /work/count.sh 스크립트를 만들어라.
 
-  인자로 받은 디렉터리 안에 파일이 몇 개인지 숫자만 출력해야 한다.
+  디렉터리 경로를 인자로 받아, 그 안에 파일이 몇 개인지 숫자만 출력한다.
   실행 권한도 있어야 한다.
 
+  경로를 스크립트 안에 적어두면 안 된다. 어떤 디렉터리를 넘기든
+  넘긴 그 디렉터리를 세야 한다.
+
   예)  ./count.sh /work/sample   ->   3
+       ./count.sh /work/other    ->   1
 
 setup:
   # setup 이 소유자를 일부러 지정한다. 자동 chown 이 그걸 덮으면 문제가 성립하지 않는다
@@ -23,9 +27,9 @@ setup:
 check:
   - desc: count.sh 가 실행 가능함
     cmd: test -x /work/count.sh
-  - desc: /work/sample 에 3 을 출력함
+  - desc: ./count.sh /work/sample 를 실행하면 3 이 나옴
     cmd: '[ "$(/work/count.sh /work/sample 2>/dev/null | tr -dc 0-9)" = 3 ]'
-  - desc: 다른 디렉터리에도 맞게 동작함 (인자를 실제로 씀)
+  - desc: ./count.sh /work/other 를 실행하면 1 이 나옴
     cmd: '[ "$(/work/count.sh /work/other 2>/dev/null | tr -dc 0-9)" = 1 ]'
 
 hints:
