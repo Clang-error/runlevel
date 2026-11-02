@@ -45,7 +45,7 @@
 | `problems/` | 문제 정의. 문제 하나가 YAML 파일 하나 |
 | `spike/` | 게스트 이미지 빌드 스크립트와 테스트 도구 |
 | `api/` | 풀이 결과를 모으는 Cloudflare Worker + D1 |
-| `docs/` | 설계 문서 |
+| `docs/` | 문제 작성 문서 |
 
 첫 방문 때 받는 데이터는 약 25MB입니다. 대부분은 부팅이 끝난 상태를 저장한
 스냅샷이고, 이걸 복원하기 때문에 커널 부팅을 기다리지 않습니다.
@@ -73,7 +73,7 @@ npm run build      # 정적 배포용 dist/ 생성
 npm run preview    # dist/ 를 :8081 에서 확인
 ```
 
-이미지를 처음부터 만드는 방법은 [docs/spike-results.md](docs/spike-results.md)에 있습니다.
+이미지를 처음부터 만들려면 `spike/`에서 `alpine-build.mjs` → `add-packages.mjs` → `finalize-image.mjs` → `make-snapshot.mjs` 순서로 실행합니다.
 
 ## 문제 추가
 
@@ -84,15 +84,7 @@ cp docs/problem-template.yaml problems/t1-text/text-11.yaml
 cd spike && node lint-problems.mjs
 ```
 
-스키마는 [docs/problem-schema.md](docs/problem-schema.md),
 작성 방법과 자주 틀리는 부분은 [docs/making-problems.md](docs/making-problems.md)에 정리돼 있습니다.
-
-## 문서
-
-- [docs/how-it-works.md](docs/how-it-works.md) — 전체 동작 방식
-- [docs/engine-research.md](docs/engine-research.md) — 실행 엔진을 v86으로 정한 이유
-- [docs/spike-results.md](docs/spike-results.md) — 이미지 빌드 과정과 측정 결과
-- [docs/privacy.md](docs/privacy.md) — 수집하는 데이터
 
 ## 라이선스
 

@@ -8,7 +8,7 @@
 #     curl -O https://runlevel.cc/img/state.bin.zst
 #     curl -O https://runlevel.cc/img/dotslash-64.img.gz
 # 처음부터 만들려면 spike/alpine-build.mjs → add-packages.mjs →
-# finalize-image.mjs → make-snapshot.mjs 순서다 (docs/spike-results.md 참고).
+# finalize-image.mjs → make-snapshot.mjs 순서다.
 spike/images/
 spike/backup-presh/
 web/img/
@@ -30,6 +30,12 @@ api/.reports-seen     # reports.mjs 가 "어디까지 봤는지" 기억하는 �
 # .gitignore 는 자기 디렉터리 아래만 덮으므로 아무 효과가 없었다.
 /CLAUDE.md
 /문제점.md
+/문제비쥬얼/
+
+# docs/ 는 기본이 비공개다. 공개할 문서만 아래에 적는다.
+/docs/*
+!/docs/making-problems.md
+!/docs/problem-template.yaml
 
 # ── 잡동사니 ───────────────────────────────────────────────────────
 .DS_Store
