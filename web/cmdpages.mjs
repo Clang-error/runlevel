@@ -66,6 +66,8 @@ function page({ title, desc, canonical, body }) {
 <meta property="og:description" content="${esc(desc)}">
 <meta property="og:image" content="${SITE}/og.png">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="${SITE}/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#16181d">
 <style>${STYLE}</style>
 <div class="wrap">
 ${body}

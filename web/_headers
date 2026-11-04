@@ -1,0 +1,11 @@
+# Cloudflare Pages 가 읽는 응답 헤더. build.mjs 가 dist/ 로 복사한다.
+#
+# X-Frame-Options: 다른 사이트가 iframe 으로 통째로 감싸는 것을 막는다.
+#   (verify/shots 는 CDP 로 직접 열므로 영향 없다.)
+# Permissions-Policy: 안 쓰는 권한을 문서 차원에서 꺼 둔다.
+# CSP 는 일부러 안 건다 — v86 때문에 wasm-unsafe-eval 이 필요해서,
+# 잘못 걸면 부팅이 통째로 죽는다. 걸려면 preview 에서 충분히 확인하고 걸 것.
+
+/*
+  X-Frame-Options: DENY
+  Permissions-Policy: camera=(), microphone=(), geolocation=()

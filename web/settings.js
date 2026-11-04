@@ -27,11 +27,13 @@ export const TERM_COLORS = {
     white: { label: "흰색", dark: "#ffffff", light: "#000000" },
 };
 
-// 화면 테마. 값이 그대로 CSS 변수가 된다.
+// 화면 테마. 페이지 색은 index.html 의 CSS(:root / :root[data-theme="light"])가
+// 들고 있고, 여기 값은 xterm 에만 들어간다. 두 곳의 값이 같아야 한다 —
+// 어긋나면 터미널 배경만 페이지와 다른 색이 된다.
 const THEMES = {
     dark: {
         bg: "#16181d", panel: "#1b1e24", line: "#2b2f38",
-        fg: "#d8dee9", dim: "#6b7280", accent: "#88c0d0",
+        fg: "#d8dee9", dim: "#828a99", accent: "#88c0d0",
         ok: "#a3be8c", no: "#bf616a", warn: "#ebcb8b",
     },
     light: {
@@ -59,10 +61,13 @@ export function save(s) {
 }
 
 // 설정을 화면에 반영한다. term 이 아직 없으면 화면 테마만 적용한다.
+//
+// 변수를 하나씩 심지 않고 data-theme 속성만 바꾼다. 인라인 변수는 CSS 보다
+// 늘 세서, index.html 이 첫 그리기 전에 입혀둔 테마(라이트 깜빡임 방지)를
+// 여기 값이 도로 덮어썼다. 속성이면 두 경로가 같은 CSS 규칙을 탄다.
 export function apply(s, { term, onTermResize } = {}) {
     const t = THEMES[s.appTheme] ?? THEMES.dark;
-    const root = document.documentElement;
-    for (const [k, v] of Object.entries(t)) root.style.setProperty(`--${k}`, v);
+    document.documentElement.dataset.theme = s.appTheme === "light" ? "light" : "dark";
 
     if (!term) return;
     const color = TERM_COLORS[s.termColor] ?? TERM_COLORS.default;

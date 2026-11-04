@@ -36,6 +36,9 @@ for (const f of ["index.html", ...APP_JS]) {
 // shots.mjs 가 만든 것을 web/og.png 로 옮겨 두고 여기서 딸려 보낸다.
 fs.copyFileSync(path.join(here, "og.png"), path.join(DIST, "og.png"));
 fs.copyFileSync(path.join(here, "robots.txt"), path.join(DIST, "robots.txt"));
+fs.copyFileSync(path.join(here, "favicon.svg"), path.join(DIST, "favicon.svg"));
+// Cloudflare Pages 가 읽는 응답 헤더 (클릭재킹 방지 등). 내용은 web/_headers 참고.
+fs.copyFileSync(path.join(here, "_headers"), path.join(DIST, "_headers"));
 // 이게 있어야 없는 주소에 진짜 404 가 나간다. 없으면 무엇을 요청하든 앱이 200 으로
 // 응답해서, 검색엔진이 존재하지 않는 주소를 끝없이 긁는다.
 fs.copyFileSync(path.join(here, "404.html"), path.join(DIST, "404.html"));
@@ -250,4 +253,4 @@ console.log(`  기본 (스냅샷 복원)   ${mb(app + size("img/state.bin.zst"))
 console.log(`    앱·엔진           ${mb(app)}`);
 console.log(`    스냅샷            ${mb(size("img/state.bin.zst"))}`);
 console.log(`  ?boot=1 (실제 부팅)  ${mb(app + bootOnly)}   (디버깅용, 평소엔 안 받는다)`);
-console.log(`\n정적 호스팅에 dist/ 를 그대로 올리면 된다. 특별한 헤더 설정은 필요 없다.`);
+console.log(`\n정적 호스팅에 dist/ 를 그대로 올리면 된다. 응답 헤더는 _headers 가 정한다 (Cloudflare Pages 형식).`);

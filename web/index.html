@@ -1,9 +1,15 @@
 <!doctype html>
+<!-- lang 이 없으면 스크린리더가 발음 규칙을 못 고르고, 브라우저가 CJK 기본 폰트를
+     엉뚱하게 잡는다. 생성되는 /cmd/ 페이지에는 있었는데 정작 앱에만 없었다. -->
+<html lang="ko">
 <meta charset="utf-8">
 <!-- 이게 없으면 폰 브라우저가 980px 짜리 가상 화면에 그린 다음 축소해서 보여준다.
      그러면 미디어 쿼리가 980 기준으로 평가돼서 폰용 규칙(<=760px)이 아예 안 걸린다.
      실제로 그랬다 — 폰 레이아웃을 다 짜놓고도 폰에서는 데스크톱 화면이 나왔다. -->
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- interactive-widget: 안드로이드 크롬은 기본값이 "키보드가 화면을 덮는 것"이라,
+     이게 없으면 가상 키보드가 올라와도 resize 가 안 와서 입력 줄이 키보드 밑에 깔린다.
+     iOS 는 이 값을 무시한다 — 그쪽은 main.js 의 visualViewport 처리가 맡는다. -->
+<meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
 <title>runlevel — 브라우저에서 도는 리눅스 명령어 연습</title>
 
 <!-- 검색 결과와 AI 요약이 읽는 자리. 예전에는 title 의 "runlevel" 일곱 글자가
@@ -25,6 +31,22 @@
 <meta property="og:image:height" content="1260">
 <meta property="og:image:alt" content="왼쪽에 문제와 목표, 오른쪽에 리눅스 터미널이 떠 있는 runlevel 화면">
 <meta name="twitter:card" content="summary_large_image">
+<!-- 해시 미리보기(<해시>.runlevel.pages.dev)는 일부러 정식 주소로 안 튕긴다.
+     크롤러가 그걸 받으면 중복 색인이 되는데, canonical 이 정식 주소로 몰아준다. -->
+<link rel="canonical" href="https://runlevel.cc/">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<!-- OS 설정을 따른다. 저장된 테마까지는 못 쫓아가지만, 라이트 사용자가
+     흰 화면 위에 검은 브라우저 띠를 이고 있는 것보다는 낫다. -->
+<meta name="theme-color" content="#16181d" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f7f8fa" media="(prefers-color-scheme: light)">
+<script>
+    // 저장된 테마를 첫 그리기 전에 입힌다. main.js 는 모듈이라 파싱 뒤에 돌므로,
+    // 라이트 사용자는 매번 다크 화면이 한 번 비쳤다. 키는 settings.js 의 KEY 와 같다.
+    try {
+        var _s = JSON.parse(localStorage.getItem("dotslash.settings.v1"));
+        if (_s && _s.appTheme === "light") document.documentElement.dataset.theme = "light";
+    } catch (e) { /* 프라이빗 모드 등. 기본(다크)으로 둔다 */ }
+</script>
 <script>
     // 정식 주소는 runlevel.cc 하나다.
     //
@@ -41,16 +63,43 @@
 </script>
 <link rel="stylesheet" href="vendor/xterm.css">
 <style>
+    /* 값은 settings.js 의 THEMES 와 같아야 한다. xterm 배경이 그쪽에서 나오므로
+       어긋나면 터미널만 다른 색이 된다.
+       --dim 은 본문(문제 요약·옵션 설명·목표 줄)이 쓰는 색이라 대비가 기준 이상이어야
+       한다. #6b7280 은 bg 위에서 3.67:1 로 AA(4.5:1) 미달이었다 — #828a99 는
+       bg 5.11:1 · panel 4.81:1. 색을 바꾸면 다시 재라, 눈대중은 늘 틀린다. */
     :root {
         --bg: #16181d;
         --panel: #1b1e24;
         --line: #2b2f38;
         --fg: #d8dee9;
-        --dim: #6b7280;
+        --dim: #828a99;
         --accent: #88c0d0;
         --ok: #a3be8c;
         --no: #bf616a;
         --warn: #ebcb8b;
+        --line2: #4c566a;
+        --okbg: rgba(163, 190, 140, .16);
+        --warnbg: rgba(235, 203, 139, .14);
+        /* 스크롤바·<select> 팝업 같은 UA 위젯도 테마를 따르게 한다.
+           없으면 다크 화면에 흰 스크롤바 트랙이 뜬다 (주로 Windows). */
+        color-scheme: dark;
+    }
+
+    :root[data-theme="light"] {
+        --bg: #f7f8fa;
+        --panel: #ffffff;
+        --line: #d8dce3;
+        --fg: #2e3440;
+        --dim: #6b7280;
+        --accent: #2b7a8c;
+        --ok: #3f7d20;
+        --no: #b03a2e;
+        --warn: #8a6a00;
+        --line2: #7e889a;
+        --okbg: rgba(63, 125, 32, .12);
+        --warnbg: rgba(138, 106, 0, .12);
+        color-scheme: light;
     }
 
     * {
@@ -71,7 +120,10 @@
        플렉스에서는 숨긴 패널이 그냥 빠지고 남은 것끼리 자리를 잡으므로 셀 일이 없다. */
     #wrap {
         display: flex;
+        /* dvh 는 폰 주소창이 늘고 줄 때마다 따라온다. vh 는 못 따라와서
+           주소창이 펼쳐지면 터미널 아랫줄이 화면 밖으로 잘렸다. 앞 줄은 구형 폴백. */
         height: 100vh;
+        height: 100dvh;
     }
 
     #side {
@@ -167,12 +219,12 @@
 
     /* 방금 바뀐 것만 잠깐 눈에 띄게 한다 */
     .t-row.added {
-        background: rgba(163, 190, 140, .16);
+        background: var(--okbg);
         color: var(--ok);
     }
 
     .t-row.changed {
-        background: rgba(235, 203, 139, .14);
+        background: var(--warnbg);
         color: var(--warn);
     }
 
@@ -213,6 +265,11 @@
         color: var(--warn);
         font-size: 12px;
         margin-top: 6px;
+    }
+
+    /* 늘 경고색이면 "통과" 도 경고처럼 읽힌다. 좋은 소식만 초록으로 */
+    #status.ok {
+        color: var(--ok);
     }
 
     /* 다른 사람들의 결과. 문제 밑이 아니라 헤더에 둬서 풀이를 방해하지 않는다 */
@@ -340,8 +397,10 @@
         resize: vertical;
     }
 
+    /* outline:none 만 두면 키보드 사용자는 포커스가 어디 있는지 모른다 */
     #rText:focus {
-        outline: none;
+        outline: 1px solid var(--accent);
+        outline-offset: 1px;
         border-color: var(--accent);
     }
 
@@ -719,7 +778,7 @@
 
     button:hover:not(:disabled) {
         color: var(--fg);
-        border-color: #4c566a;
+        border-color: var(--line2);
     }
 
     button:disabled {
@@ -771,6 +830,13 @@
     #term {
         padding: 8px;
         height: 100%;
+    }
+
+    /* 가상 키 줄. 폰 소프트 키보드에는 Tab·Ctrl·Esc·화살표가 없다 —
+       셸 연습에서 Tab 완성과 ^C 는 장식이 아니라 탈출구다.
+       데스크톱에는 실물 키보드가 있으니 아예 안 그린다. */
+    #keyRow {
+        display: none;
     }
 
     #selftest {
@@ -947,9 +1013,9 @@
         text-overflow: ellipsis;
     }
 
-    .pr.done .pr-sum {
-        opacity: .55;
-    }
+    /* 푼 문제 요약을 opacity 로 더 흐리게 하지 않는다.
+       --dim 위에 .55 를 겹치면 실효 대비가 1.99:1 — 사실상 안 보인다.
+       구분은 ✓ 표식이 이미 한다. */
 
     /* 탭. 밑줄은 켜진 탭에만 긋는다 — 가로로 꽉 찬 선은 구분선처럼 보여서 뺐다 */
     .tabs {
@@ -1138,7 +1204,8 @@
     #cmdSearch:focus,
     #cmdFindQ:focus,
     #probSearch:focus {
-        outline: none;
+        outline: 1px solid var(--accent);
+        outline-offset: 1px;
         border-color: var(--accent);
     }
 
@@ -1324,6 +1391,18 @@
         font-size: 11px;
     }
 
+    .home-foot {
+        margin-top: 48px;
+        padding-top: 16px;
+        border-top: 1px solid var(--line);
+        font-size: 12px;
+        color: var(--dim);
+    }
+
+    .home-foot a {
+        color: var(--accent);
+    }
+
     /* 좁으면 목차를 접는다. 본문에서 160px 을 떼어갈 여유가 없다 */
     @media (max-width: 760px) {
         #paneCmds {
@@ -1386,6 +1465,16 @@
         display: none;
     }
 
+    /* 접힌 상태의 열기 손잡이(⟩)가 터미널 1행 앞 글자를 덮는다.
+       폰 분기가 같은 충돌을 44px 패딩으로 풀었는데 데스크톱에는 없었다.
+       패딩이 바뀌면 setSideVisible 의 fit.fit() 이 행 수를 다시 잰다.
+       폰(≤760)은 자기 44px 를 쓰므로 데스크톱에만 건다. */
+    @media (min-width: 761px) {
+        #wrap.no-side #main {
+            padding-top: 40px;
+        }
+    }
+
     /* 좁은 화면에서는 곁 패널을 아예 접는다. 열 자리가 없으니 버튼도 숨긴다. */
     @media (max-width: 1100px) {
         #side {
@@ -1443,6 +1532,35 @@
         #sideBtn {
             padding: 6px 12px;
             font-size: 15px;
+        }
+
+        /* 손가락 과녁. 데스크톱 크기 그대로 두면 25px 안팎이라 잘 안 잡힌다 */
+        .btns button,
+        #picker button,
+        .tabs .tab,
+        .home-top button,
+        .home-resume button,
+        .cmd-try {
+            padding: 9px 14px;
+            font-size: 13px;
+        }
+
+        /* #sideOpen(⟨ 문제)이 쓰는 위쪽 44px 띠의 왼편에 들어간다 */
+        #keyRow {
+            display: flex;
+            position: absolute;
+            top: 7px;
+            left: 10px;
+            gap: 6px;
+            z-index: 10;
+        }
+
+        #keyRow button {
+            padding: 8px 11px;
+            font-size: 13px;
+            background: var(--panel);
+            /* 더블탭 확대 대기(300ms)를 끈다. 연타할 키들이다 */
+            touch-action: manipulation;
         }
     }
 </style>
@@ -1587,6 +1705,15 @@
         <div id="term" hidden></div>
         <div id="busy" hidden><span>터미널 준비 중...</span></div>
         <button id="sideOpen" title="문제 창 열기" aria-label="문제 창 열기" hidden>⟩</button>
+        <!-- 폰 전용. 터미널이 붙기 전에는 hidden — 대기 화면 위에 뜰 이유가 없다.
+             무엇을 보내는지는 main.js 의 KEYSEQ 가 정한다. -->
+        <div id="keyRow" hidden>
+            <button data-key="tab" aria-label="탭 키">Tab</button>
+            <button data-key="ctrlc" aria-label="Ctrl+C">^C</button>
+            <button data-key="esc" aria-label="이스케이프 키">Esc</button>
+            <button data-key="up" aria-label="위 화살표">↑</button>
+            <button data-key="down" aria-label="아래 화살표">↓</button>
+        </div>
     </div>
 </div>
 
@@ -1689,11 +1816,15 @@
                 다루는 문제는 root 로 시작합니다.</p>
         </div>
 
+        <!-- /cmd/ 정적 페이지로 가는 유일한 내부 링크. 크롤러는 사이트맵으로만
+             그 페이지들을 알게 되는데, 내부 링크가 없는 페이지는 순위가 안 붙는다.
+             탭 바깥에 둔다 — JS 로 그리는 목록과 달리 늘 HTML 에 있어야 한다. -->
+        <p class="home-foot">터미널 없이 설명만 읽고 싶다면 — <a href="cmd/">리눅스 기본 명령어 사전</a></p>
     </div>
 </div>
 
 <div id="report" hidden>
-    <div class="sheet">
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="rTitle">
         <div class="sheet-head">
             <span id="rTitle">문제가 있으신가요?</span>
             <button id="rClose" aria-label="닫기">×</button>
@@ -1721,7 +1852,7 @@
 </div>
 
 <div id="modal" hidden>
-    <div class="sheet">
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mTitle">
         <div class="sheet-head">
             <button id="mBack" hidden aria-label="뒤로">‹</button>
             <span id="mTitle">설정</span>

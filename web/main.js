@@ -25,8 +25,11 @@ let queued = null;
 // 준비가 끝나기 전에는 홈에도 같은 말을 띄운다. 홈을 보는 동안 스냅샷을 받고 있어서,
 // 아무 표시가 없으면 눌러도 안 열리는 이유를 알 수 없다.
 // 준비가 끝난 뒤의 문구("file-01 — 2/4")는 문제 창에만 둔다.
-const setStatus = (s) => {
+// tone="ok" 는 좋은 소식(통과·준비 완료)에만 쓴다. 기본은 경고색 그대로다 —
+// 늘 노랗게 두면 "통과"도 경고처럼 읽혀서 색이 정보를 안 준다.
+const setStatus = (s, tone) => {
     $("status").textContent = s;
+    $("status").classList.toggle("ok", tone === "ok");
     if (!bootDone) $("homeStatus").textContent = queued ? `${s} · 끝나면 ${queued.label} 시작` : s;
 };
 const setBar = (w) => {
@@ -117,7 +120,9 @@ const vm = await createVM({
         const mb = (n) => (n / 1024 / 1024).toFixed(1);
         if (total) {
             const pct = Math.round((got / total) * 100);
-            setStatus(`시스템 이미지 받는 중 · ${pct}%`);
+            // 총량을 같이 적는다. 24MB 는 모바일 데이터에서 공짜가 아니다 —
+            // %만 보여주면 얼마나 받는지는 끝까지 모른다.
+            setStatus(`시스템 이미지 받는 중 · ${mb(got)} / ${mb(total)}MB (${pct}%)`);
             setBar(`${pct * 0.8}%`);          // 나머지 20% 는 부팅 몫
         } else {
             setStatus(`시스템 이미지 받는 중 · ${mb(got)}MB`);
@@ -859,7 +864,7 @@ async function gradeNow() {
             if (progress.markSolved(current.id)) renderList();
             progress.saveLog(current.id, typed);
             sendStats(current, "solved");
-            setStatus(`${current.id} — 통과`);
+            setStatus(`${current.id} — 통과`, "ok");
             showBroken(false);
         } else {
             // 채점 조건이 아예 실행되지 못했으면 그건 채점 결과가 아니라 고장이다.
@@ -976,6 +981,25 @@ function setSideVisible(on) {
 }
 $("sideBtn").onclick = () => setSideVisible(false);
 $("sideOpen").onclick = () => setSideVisible(true);
+
+// 가상 키 줄 (폰 전용 — CSS 가 760px 아래에서만 그린다).
+//
+// 소프트 키보드에는 Tab·Ctrl·Esc·화살표가 없다. Tab 완성이 안 되는 것은 불편이지만
+// ^C 가 없는 것은 감옥이다 — cat 을 인자 없이 띄우면 새로고침밖에 없었다.
+//
+// pointerdown 에서 preventDefault 해야 포커스(=소프트 키보드)가 버튼으로 안 뺏긴다.
+// iOS 는 호환 mousedown 경로로도 포커스를 옮기므로 거기도 막는다.
+// ^C 는 한 글자만 보낸다 — \x03 뒤에 글자를 붙이면 bash 가 되그리는 동안 떨어진다
+// (CLAUDE.md 의 sendAfterInterrupt 사정과 같은 이유).
+// recordTyped 는 부르지 않는다. 이건 명령이 아니라 키다.
+const KEYSEQ = { tab: "\t", ctrlc: "\x03", esc: "\x1b", up: "\x1b[A", down: "\x1b[B" };
+for (const b of $("keyRow").querySelectorAll("button")) {
+    b.onpointerdown = (e) => {
+        e.preventDefault();
+        if (attached) { vm.sendUser(KEYSEQ[b.dataset.key]); focusTerm(); }
+    };
+    b.onmousedown = (e) => e.preventDefault();
+}
 
 // 폰에서는 문제 창이 터미널을 통째로 덮는다. 화살표 하나만 있으면
 // 그걸 눌렀을 때 무엇이 나오는지 알 수가 없어서, 좁을 때만 글자를 붙인다.
@@ -1196,7 +1220,9 @@ function showView(name) {
     $("mTitle").textContent = isMenu ? "설정" : VIEWS[name][1];
     $("mBack").hidden = isMenu;
 }
-function openModal() { $("modal").hidden = false; showView(null); }
+// 열릴 때 포커스를 안으로 옮긴다. 신고 팝업은 rText 로 옮기는데 여기만 안 옮겨서,
+// 키보드 사용자는 열어놓고도 Tab 을 한참 눌러야 닿았다.
+function openModal() { $("modal").hidden = false; showView(null); $("mMenu").querySelector(".menu-item")?.focus(); }
 function closeModal() { $("modal").hidden = true; focusTerm(); }
 
 // ---------- 문제 신고 ----------
@@ -1309,6 +1335,30 @@ function switchToTerminal() {
         syncSize();
     });
     syncSize();
+
+    // 폰 소프트 키보드. 안드로이드 크롬은 viewport 메타의 interactive-widget 덕에
+    // 레이아웃이 줄며 위의 resize 로 들어온다. iOS 는 레이아웃을 안 줄이고
+    // visualViewport 만 줄어들어, 입력 줄이 키보드 밑에 깔린 채로 남는다.
+    // 그때만 #wrap 높이를 직접 입힌다.
+    //
+    // 같은 값이면 아무것도 안 한다 — fit.fit() 이 포커스된 textarea 크기를 바꾸면
+    // iOS 가 visualViewport resize 를 또 쏘는데, 그때마다 다시 쓰면 서로를 되울린다.
+    if (window.visualViewport) {
+        let lastVV = 0;
+        visualViewport.addEventListener("resize", () => {
+            if (!narrow.matches) return;        // 데스크톱의 핀치 줌까지 끌어안을 이유가 없다
+            const h = Math.round(visualViewport.height);
+            if (h === lastVV) return;
+            lastVV = h;
+            if (h >= innerHeight - 1) $("wrap").style.removeProperty("height");   // 키보드 내려감
+            else $("wrap").style.height = `${h}px`;
+            fit.fit();
+            syncSize();
+        });
+    }
+
+    // 가상 키 줄은 터미널이 생긴 다음부터. 대기 화면 위에 뜰 이유가 없다.
+    $("keyRow").hidden = false;
 
     term.onData((d) => {
         // 엔터 직전의 화면을 먼저 읽는다. 보내고 나면 프롬프트가 지나가버린다.
@@ -1970,7 +2020,7 @@ async function selftest() {
     }
 
     switchToTerminal();
-    setStatus(`준비 완료 (${sec}초)`);
+    setStatus(`준비 완료 (${sec}초)`, "ok");
     // 준비 상태를 계속 띄워둘 이유가 없다. 자리를 비우고 막대를 진도로 넘긴다.
     $("homeStatus").textContent = "";
     renderHome();
