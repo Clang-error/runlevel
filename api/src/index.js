@@ -21,6 +21,31 @@ const OUTCOMES = new Set(["solved", "left", "closed"]);
 // 그런 숫자는 정보가 아니라 소음이라 아예 내보내지 않는다.
 const MIN_SAMPLE = 5;
 
+// 같은 IP 의 반복 POST 를 끊는다. 정상 사용은 문제당 1건이라 분당 30이면 넉넉하다.
+//
+// isolate 안에서만 사는 Map 이라 완전한 울타리는 아니다 (엣지 POP 마다,
+// isolate 가 재활용될 때마다 비워진다) — 진짜 울타리는 대시보드의
+// rate limiting rule 이다. 그래도 한 클라이언트가 루프로 D1 행을
+// 쏟아붓는 흔한 경우는 여기서 끊긴다.
+const RATE_MAX = 30;
+const RATE_WINDOW = 60 * 1000;
+const hits = new Map();   // ip -> { n, resetAt }
+
+function rateLimited(request) {
+    const ip = request.headers.get("cf-connecting-ip") ?? "?";
+    const now = Date.now();
+    // 접근마다 훑지 않고 쌓였을 때 한 번에 비운다
+    if (hits.size > 5000) {
+        for (const [k, v] of hits) if (v.resetAt < now) hits.delete(k);
+    }
+    const h = hits.get(ip);
+    if (!h || h.resetAt < now) {
+        hits.set(ip, { n: 1, resetAt: now + RATE_WINDOW });
+        return false;
+    }
+    return ++h.n > RATE_MAX;
+}
+
 const clampInt = (v, max) => {
     const n = Number.isFinite(v) ? Math.trunc(v) : 0;
     return Math.min(Math.max(n, 0), max);
@@ -153,12 +178,18 @@ export default {
             if (request.method !== "POST") {
                 return new Response("Method not allowed", { status: 405, headers: { allow: "POST" } });
             }
+            if (rateLimited(request)) {
+                return new Response("Too many requests", { status: 429, headers: { "retry-after": "60" } });
+            }
             return collect(request, env);
         }
 
         if (pathname === "/api/report") {
             if (request.method !== "POST") {
                 return new Response("Method not allowed", { status: 405, headers: { allow: "POST" } });
+            }
+            if (rateLimited(request)) {
+                return new Response("Too many requests", { status: 429, headers: { "retry-after": "60" } });
             }
             return report(request, env);
         }
