@@ -133,7 +133,11 @@ const vm = await createVM({
     onProgress: (e) => {
         if (attached || !e.lengthComputable) return;
         const pct = Math.round((e.loaded / e.total) * 100);
-        setStatus(`부팅 파일 받는 중 ${e.file_index + 1}/${e.file_count} · ${pct}%`);
+        // 마지막 파일(스냅샷)을 다 받으면 v86 이 압축을 풀고 메모리를 복원하는데,
+        // 그동안은 메인 스레드가 막혀 아무 표시도 못 바꾼다. 마지막 진행 이벤트에서
+        // 미리 말을 바꿔 둔다 — 안 그러면 "100%"에 멈춘 것처럼 보인다.
+        const last = e.file_index + 1 === e.file_count && e.loaded >= e.total;
+        setStatus(last ? "시스템 복원 중..." : `부팅 파일 받는 중 ${e.file_index + 1}/${e.file_count} · ${pct}%`);
     },
 });
 

@@ -7,11 +7,12 @@ import { writeFileCmd, FIND_SCRATCH } from "./vm.js";
 
 export async function loadIndex() {
     const list = await (await fetch("problems/index.json")).json();
-    const problems = [];
-    for (const file of list) {
+    // 한꺼번에 받는다. 하나씩 await 하면 파일 수만큼 왕복이 쌓인다 —
+    // CDN 왕복 200ms × 75개 = 15초 동안 "준비 완료"가 안 떴다 (게스트는 2초에 이미 살아 있었다).
+    const problems = await Promise.all(list.map(async (file) => {
         const text = await (await fetch(`problems/${file}`)).text();
-        problems.push({ file, ...jsyaml.load(text) });
-    }
+        return { file, ...jsyaml.load(text) };
+    }));
     return problems.sort((a, b) => (a.level - b.level) || a.id.localeCompare(b.id));
 }
 
